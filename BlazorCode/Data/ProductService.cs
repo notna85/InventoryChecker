@@ -13,7 +13,7 @@ namespace InventoryChecker.Data
         {
             ConnectionString = connectionstring;
         }
-        //ProductDAL pDAL = new ProductDAL(ConnectionString);
+        ProductDAL pDAL = new ProductDAL("");
 
         public void AddProduct(Product product)
         {
