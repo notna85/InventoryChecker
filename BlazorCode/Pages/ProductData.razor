@@ -1,0 +1,92 @@
+﻿@page "/productdata"
+
+@using InventoryChecker.Data
+@inject ProductService ProductDataService
+
+<h1>ProductData</h1>
+
+@if (products == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                @foreach (string s in storages)
+                {
+                    <th>@s</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in products)
+            {
+                i = 0;
+            <tr>
+                <td>@product.Name</td>
+                @foreach (var storage in storages)
+                {
+                    found = false;
+                    int currentIndex = 0;
+                    @foreach (var pStorage in product.StorageType)
+                    {
+
+                        if (storage.ToLower().Equals(pStorage.Type.ToLower()))
+                        {
+                            found = true;
+                            i = currentIndex;
+                        }
+                        currentIndex++;
+                    }
+                    if (found)
+                    {
+                        <td>
+                            <table>
+                                <tr>
+                                    <td><button class="btn btn-round" @onclick="SubtractOne">-</button></td>
+                                    <td>@product.StorageType[i].Type</td>
+                                    <td>@product.StorageType[i].Amount</td>
+                                    <td><button class="btn btn-round" @onclick="AddOne">+</button></td>
+                                </tr>
+                            </table>
+                        </td>
+                    }
+                    else 
+                    {
+                        <td>Not found</td>                    
+                    }
+                }
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code
+{
+    private int i;
+    private bool found;
+    private List<Product> products;
+    private List<String> storages;
+
+    private string CurrentCategory { get; set; } = "Frugt";
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await ProductDataService.GetProductsByCategory(CurrentCategory);
+        storages = await ProductDataService.GetStorageTypes();
+    }
+    private async void SubtractOne()
+    {
+        ProductDataService.UpdateProductAmount("banan", "Kasser", "-1");
+        products = await ProductDataService.GetProductsByCategory(CurrentCategory);
+    }
+    private async void AddOne()
+    {
+        ProductDataService.UpdateProductAmount("banan", "Kasser", "+1");
+        products = await ProductDataService.GetProductsByCategory(CurrentCategory);
+    }
+}
