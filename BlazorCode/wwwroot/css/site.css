@@ -15,11 +15,20 @@ a, .btn-link {
 }
 .btn-round {
     color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    background-color: darkseagreen;
     border-radius: 50%;
     width: 50px;
     height: 50px;
+    font-size: 50px;
+    line-height: 50px;
+    padding: 0;
+    margin: 0;
+}
+.spec-table {
+    padding: 0 !important;
+    margin: 0 !important;
+    vertical-align: middle !important;
+    border-top: none !important;
 }
 
 app {

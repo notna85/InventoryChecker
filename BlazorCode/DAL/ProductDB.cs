@@ -75,14 +75,14 @@ namespace InventoryChecker.DAL
             }
             return productList;
         }
-        public void UpdateProductAmount(string product, string storagetype, string operation)
+        public void UpdateProductAmount(string product, string storagetype, string amount)
         {
             using (SqlConnection conn = new SqlConnection(ConnectionString))
             {
                 try 
                 {
                     conn.Open();
-                    string updateQuery = "update productamount set amount = amount " + operation + " where product = '" + product + "' and storagetype = '" + storagetype + "'";
+                    string updateQuery = "update productamount set amount = amount " + amount + " where product = '" + product + "' and storagetype = '" + storagetype + "'";
                     using(SqlCommand cmd = new SqlCommand(updateQuery, conn))
                     {
                         cmd.ExecuteNonQuery();
@@ -96,7 +96,29 @@ namespace InventoryChecker.DAL
         }
         public List<string> GetCategories()
         {
-            return new List<string>();
+            List<string> categories = new List<string>();
+
+            using(SqlConnection cnn = new SqlConnection(ConnectionString))
+            {
+                try
+                {
+                    string categoryQuery = "select CName from Category";
+                    cnn.Open();
+                    using (SqlCommand cCmd = new SqlCommand(categoryQuery, cnn))
+                    {
+                        SqlDataReader reader = cCmd.ExecuteReader();
+                        while(reader.Read())
+                        {
+                            categories.Add((string)reader["CName"]);
+                        }
+                    }
+                }
+                finally
+                {
+                    cnn.Close();
+                }
+            }
+            return categories;
         }
         public List<string> GetStorageTypes()
         {

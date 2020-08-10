@@ -11,6 +11,7 @@ namespace InventoryChecker.Data
     public class ProductService
     {
         IDAL pDAL = new ProductDB();
+        public string CurrentCategory { get; set; }
         public ProductService()
         {
         }
@@ -19,13 +20,13 @@ namespace InventoryChecker.Data
         {
             pDAL.AddProduct(product);
         }
-        public Task<List<Product>> GetProductsByCategory(string category)
+        public Task<List<Product>> GetProductsByCategory()
         {
-            return Task.FromResult(pDAL.GetProductsByCategory(category));
+            return Task.FromResult(pDAL.GetProductsByCategory(CurrentCategory));
         }
-        public void UpdateProductAmount(string product, string storagetype, string operation)
+        public void UpdateProductAmount(string product, string storagetype, string amount)
         {
-            pDAL.UpdateProductAmount(product, storagetype, operation);
+            pDAL.UpdateProductAmount(product, storagetype, amount);
         }
         public Task<List<string>> GetCategories()
         {

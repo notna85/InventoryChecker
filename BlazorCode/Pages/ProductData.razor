@@ -2,8 +2,24 @@
 
 @using InventoryChecker.Data
 @inject ProductService ProductDataService
+@inject NavigationManager NavMan
 
-<h1>ProductData</h1>
+<div style="display: flex; width: 1000px">
+    <div style="flex-grow: 1">
+        <button class="btn btn-primary" @onclick="GoToMain">Main Menu</button>
+    </div>
+    <div style="width: 150px">
+        <button class="btn btn-primary" @onclick="AddProduct">Add Product</button>
+    </div>
+    <div style="width: 150px">
+        <button class="btn btn-primary">Refresh</button>
+    </div>
+</div>
+<div style="width: 1000px; display: flex; justify-content: center">
+    <h1>@CurrentCategory</h1>
+</div>
+
+
 
 @if (products == null)
 {
@@ -11,52 +27,60 @@
 }
 else
 {
-    <table class="table">
+    <table class="table" style="width: 1000px">
         <thead>
             <tr>
                 <th>Name</th>
-                @foreach (string s in storages)
+                @foreach (string storage in storages)
                 {
-                    <th>@s</th>
+                    <th>@storage</th>
                 }
             </tr>
         </thead>
         <tbody>
-            @foreach (var product in products)
+            @foreach (Product product in products)
             {
-                i = 0;
             <tr>
-                <td>@product.Name</td>
-                @foreach (var storage in storages)
+                <td style="width: 100px; vertical-align: middle; font-weight: bold">@product.Name</td>
+                @foreach (string storage in storages)
                 {
                     found = false;
-                    int currentIndex = 0;
-                    @foreach (var pStorage in product.StorageType)
+                    currentIndex = 0;
+                    @foreach (ProductStorage pStorage in product.StorageType)
                     {
-
                         if (storage.ToLower().Equals(pStorage.Type.ToLower()))
                         {
                             found = true;
-                            i = currentIndex;
+                            break;
                         }
-                        currentIndex++;
+                        else
+                        {
+                            currentIndex++;
+                        }
                     }
                     if (found)
                     {
-                        <td>
-                            <table>
+                        int i = currentIndex;
+                        <td style="width: 150px">
+                            <table class="table">
                                 <tr>
-                                    <td><button class="btn btn-round" @onclick="SubtractOne">-</button></td>
-                                    <td>@product.StorageType[i].Type</td>
-                                    <td>@product.StorageType[i].Amount</td>
-                                    <td><button class="btn btn-round" @onclick="AddOne">+</button></td>
+                                    <td class="spec-table">
+                                        <button class="btn btn-round" @onclick='() => UpdateAmount(product.Name, product.StorageType[i].Type, "-1")'>-</button>
+                                    </td>
+                                    <td class="spec-table" style="width: 50px; font-weight: bold; font-size: 24px; text-align: center">
+                                        @product.StorageType[i].Amount
+                                    </td>
+                                    <td class="spec-table">
+                                        <button class="btn btn-round" @onclick='() => UpdateAmount(product.Name, product.StorageType[i].Type, "+1")'>+</button>
+                                    </td>
+                                    <td class="spec-table" style="width: 50px"></td>
                                 </tr>
                             </table>
                         </td>
                     }
                     else 
                     {
-                        <td>Not found</td>                    
+                        <td style="width: 150px"></td>                    
                     }
                 }
             </tr>
@@ -67,26 +91,29 @@ else
 
 @code
 {
-    private int i;
+    private int currentIndex;
     private bool found;
     private List<Product> products;
     private List<String> storages;
-
-    private string CurrentCategory { get; set; } = "Frugt";
+    public string CurrentCategory { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        products = await ProductDataService.GetProductsByCategory(CurrentCategory);
+        CurrentCategory = ProductDataService.CurrentCategory;
+        products = await ProductDataService.GetProductsByCategory();
         storages = await ProductDataService.GetStorageTypes();
     }
-    private async void SubtractOne()
+    private async void UpdateAmount(string product, string storage, string amount)
     {
-        ProductDataService.UpdateProductAmount("banan", "Kasser", "-1");
-        products = await ProductDataService.GetProductsByCategory(CurrentCategory);
+        ProductDataService.UpdateProductAmount(product, storage, amount);
+        products = await ProductDataService.GetProductsByCategory();
     }
-    private async void AddOne()
+    private void AddProduct()
     {
-        ProductDataService.UpdateProductAmount("banan", "Kasser", "+1");
-        products = await ProductDataService.GetProductsByCategory(CurrentCategory);
+
+    }
+    private void GoToMain()
+    {
+        NavMan.NavigateTo("/");
     }
 }

@@ -15,7 +15,7 @@ namespace InventoryChecker.Interfaces
         {
             return new List<Product>();
         }
-        public void UpdateProductAmount(string product, string storagetype, string operation)
+        public void UpdateProductAmount(string product, string storagetype, string amount)
         {
         }
         public List<string> GetCategories()
