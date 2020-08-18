@@ -1,11 +1,11 @@
 ﻿@page "/"
 
 @using InventoryChecker.Data
+@using InventoryChecker.Data.Entities
 @inject ProductService ProductDataService
 @inject NavigationManager NavMan
 
 <h1>Categories</h1>
-@*<CascadingValue Value="ChosenCategory"></CascadingValue>*@
 
 @if (categories == null)
 {
@@ -13,31 +13,32 @@
 }
 else
 {
-    <table>
-        @foreach (string category in categories)
+    @foreach (Category category in categories)
+    {
+        <button class="btn btn-primary" style="width: 150px; height: 50px" @onclick='() => GoToProducts(category.CName)'>@category.CName</button>
+        i++;
+        if(i == 5)
         {
-            <tr>
-                <td>
-                    <button class="btn btn-primary" style="width: 150px; height: 50px" @onclick='() => GoToProducts(category)'>@category</button>
-                </td>
-            </tr>
+            <br />
+            <br />
+            i = 0;
         }
-    </table>
+    }
 }
 
 @code
 {
-    private List<string> categories = new List<string>();
-    public string ChosenCategory { get; set; }
+    private int i = 0;
+    private List<Category> categories = new List<Category>();
 
     protected override async Task OnInitializedAsync()
     {
-        ProductDataService.CurrentCategory = "";
+        ProductService.CurrentCategory = "";
         categories = await ProductDataService.GetCategories();
     }
     private void GoToProducts(string category)
     {
-        ProductDataService.CurrentCategory = category;
+        ProductService.CurrentCategory = category;
         NavMan.NavigateTo("productdata");
     }
 }

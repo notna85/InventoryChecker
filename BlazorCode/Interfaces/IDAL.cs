@@ -6,23 +6,26 @@ using System.Threading.Tasks;
 
 namespace InventoryChecker.Interfaces
 {
-    public interface IDAL
+    public interface IDAL<T>
     {
-        public void AddProduct(Product product)
+        public void Add(T t)
         {
         }
-        public List<Product> GetProductsByCategory(string category)
+        public List<T> GetByCategory(string category)
         {
-            return new List<Product>();
+            return new List<T>();
         }
-        public void UpdateProductAmount(string product, string storagetype, string amount)
+        public void Update(T t, int index, string amount)
+        {
+        }
+        public void Delete(string product)
         {
         }
         public List<string> GetCategories()
         {
             return new List<string>();
         }
-        public List<string> GetStorageTypes()
+        public List<string> GetStorageTypes(string category)
         {
             return new List<string>();
         }

@@ -1,40 +1,67 @@
 ﻿using InventoryChecker.DAL;
+using InventoryChecker.Data.Entities;
 using InventoryChecker.Interfaces;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace InventoryChecker.Data
 {
     public class ProductService
     {
-        IDAL pDAL = new ProductDB();
-        public string CurrentCategory { get; set; }
-        public ProductService()
-        {
-        }
+        FreezerContext dbContext;
+        public static string CurrentCategory { get; set; }
 
-        public void AddProduct(Product product)
+        public ProductService(FreezerContext context)
         {
-            pDAL.AddProduct(product);
+            dbContext = context;
         }
-        public Task<List<Product>> GetProductsByCategory()
+        public void AddProduct(ProductModel productModel)
         {
-            return Task.FromResult(pDAL.GetProductsByCategory(CurrentCategory));
+            dbContext.Product.Add(productModel.Product);
+            foreach(ProductAmount pa in productModel.ProductAmountList)
+            {
+                dbContext.ProductAmount.Add(pa);
+            }
+            dbContext.SaveChanges();
         }
-        public void UpdateProductAmount(string product, string storagetype, string amount)
+        public async Task<List<ProductModel>> GetProductsByCategory()
         {
-            pDAL.UpdateProductAmount(product, storagetype, amount);
+            List<ProductModel> pmList = new List<ProductModel>();
+            List<Product> pList = await dbContext.Product.Where(p => p.Category == CurrentCategory).ToListAsync();
+            foreach(Product p in pList)
+            {
+                List<ProductAmount> paList = dbContext.ProductAmount.Where(pa => pa.Product == p.PName).ToList();
+                ProductModel pm = new ProductModel(p, paList);
+                pmList.Add(pm);
+            }
+            return pmList; 
         }
-        public Task<List<string>> GetCategories()
+        public void UpdateProductAmount(ProductAmount productAmount, int amount)
         {
-            return Task.FromResult(pDAL.GetCategories());
+            dbContext.Database.ExecuteSqlRaw("Update_Amount @p0, @p1, @p2", amount, productAmount.Product, productAmount.StorageType);
+            dbContext.Entry(productAmount).State = EntityState.Detached;
         }
-        public Task<List<string>> GetStorageTypes()
+        public void RemoveProduct(string productname)
         {
-            return Task.FromResult(pDAL.GetStorageTypes());
+            Product product = dbContext.Product.Find(productname);
+            dbContext.Product.Remove(product);
+            dbContext.SaveChanges();
+        }
+        public async Task<List<Category>> GetCategories()
+        {
+            return await dbContext.Category.ToListAsync();
+        }
+        public async Task<List<StorageType>> GetStorageTypes()
+        {
+            return await dbContext.StorageType.ToListAsync();
         }
     }
 }

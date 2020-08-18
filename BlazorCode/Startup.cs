@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using InventoryChecker.Data;
+using Microsoft.EntityFrameworkCore;
+using InventoryChecker.DAL;
 
 namespace InventoryChecker
 {
@@ -28,8 +30,8 @@ namespace InventoryChecker
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
-            services.AddSingleton<ProductService>();
+            services.AddDbContext<FreezerContext>(option => option.UseSqlServer(Configuration.GetConnectionString("FreezerDB")));
+            services.AddTransient<ProductService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
