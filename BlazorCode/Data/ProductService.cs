@@ -47,7 +47,7 @@ namespace InventoryChecker.Data
         public void UpdateProductAmount(ProductAmount productAmount, int amount)
         {
             dbContext.Database.ExecuteSqlRaw("Update_Amount @p0, @p1, @p2", amount, productAmount.Product, productAmount.StorageType);
-            dbContext.Entry(productAmount).State = EntityState.Detached;
+            dbContext.Entry(productAmount).State = EntityState.Detached; //Removes entity from database context so that an updated one can be fetched
         }
         public void RemoveProduct(string productname)
         {
@@ -59,9 +59,10 @@ namespace InventoryChecker.Data
         {
             return await dbContext.Category.ToListAsync();
         }
-        public async Task<List<StorageType>> GetStorageTypes()
+        public async Task<List<StorageType>> GetStorageTypes(string category)
         {
-            return await dbContext.StorageType.ToListAsync();
+            return await dbContext.StorageType.FromSqlRaw("select distinct SType from StorageType join ProductAmount on StorageType.SType = ProductAmount.StorageType join Product on Product.PName = ProductAmount.Product where Product.Category = '" + category + "'").ToListAsync();
+            //return await dbContext.StorageType.ToListAsync();
         }
     }
 }

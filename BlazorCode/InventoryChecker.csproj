@@ -14,4 +14,13 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Images\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\Images\Fruit.png" />
+    <None Include="wwwroot\Images\pexels-karolina-grabowska-4038780.jpg" />
+  </ItemGroup>
+
 </Project>

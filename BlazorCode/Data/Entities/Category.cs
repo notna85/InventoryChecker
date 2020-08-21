@@ -10,5 +10,6 @@ namespace InventoryChecker.Data.Entities
     {
         [Key]
         public string CName { get; set; }
+        public string ImageRef { get; set; }
     }
 }

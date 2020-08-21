@@ -4,21 +4,8 @@
 @using InventoryChecker.Data.Entities
 @inject ProductService ProductDataService
 @inject NavigationManager NavMan
+@inject IJSRuntime JsRunTime
 
-<div style="display: flex; width: 1000px">
-    <div style="flex-grow: 1">
-        <button class="btn btn-primary" @onclick="GoToMain">Main Menu</button>
-    </div>
-    <div style="width: 150px">
-        <button class="btn btn-primary" @onclick='() => ShowAddNew = true'>Add Product</button>
-    </div>
-    <div style="width: 150px">
-        <button class="btn btn-primary">Refresh</button>
-    </div>
-</div>
-<div style="display:flex; justify-content: center; width: 1000px">
-    <h1>@CurrentCategory</h1>
-</div>
 
 @if (ShowAddNew == true)
 {
@@ -49,7 +36,7 @@
     </div>
     <div class="modal-backdrop fade show"></div>
 }
-@if(CurrentCategory == "")
+@if (CurrentCategory == "")
 {
     GoToMain();
 }
@@ -60,21 +47,34 @@
 }
 else
 {
-    <table class="table" style="width: 1000px">
-        <thead>
-            <tr>
-                <th>Name</th>
+    <div style="width: 1000px; height: 100%; margin: auto">
+        <div style="position: sticky; top: 0px; padding: 0 10px 0 10px; background-color: lightblue">
+            <div style="display: flex">
+                <div style="flex-grow: 1">
+                    <button class="btn btn-primary" @onclick="GoToMain">Kategorier</button>
+                </div>
+                <div style="align-content: center">
+                    <button class="btn btn-primary" @onclick='() => ShowAddNew = true'>Tilføj Produkt</button>
+                </div>
+            </div>
+            <br />
+            <div style="display:flex; justify-content: center; padding: 10px 0 10px 0">
+                <h1>@CurrentCategory</h1>
+            </div>
+            <div style="display: grid; grid-template-columns: 150px repeat(@ColumnCount, calc((100% - 250px)/@ColumnCount)) 100px; height: 50px; background-color: cadetblue; border-radius: 25px">
+                <div style="font-weight: bold; line-height: 50px; text-align: center">Name</div>
                 @foreach (StorageType storage in storages)
                 {
-                    <th>@storage.Stype</th>
+                    <div style="font-weight: bold; line-height: 50px; text-align: center">@storage.Stype</div>
                 }
-            </tr>
-        </thead>
-        <tbody>
+                <div></div>
+            </div>
+        </div>
+        <div style="padding: 10px">
             @foreach (ProductModel pm in productModels)
             {
-                <tr>
-                    <td style="width: 100px; vertical-align: middle; font-weight: bold">@pm.Product.PName</td>
+                <div style="display: grid; grid-template-columns: 150px repeat(@ColumnCount, calc((100% - 250px)/@ColumnCount)) 100px; padding: 20px 0 20px 0; margin-bottom: 10px; background-color: white; border-radius: 45px">
+                    <div style="line-height: 50px; text-align: center; font-weight: bold">@pm.Product.PName</div>
                     @foreach (StorageType storage in storages)
                     {
                         found = false;
@@ -94,36 +94,37 @@ else
                         if (found)
                         {
                             int i = currentIndex;
-                            <td>
-                                <table class="table" style="margin: 0">
-                                    <tr>
-                                        <td class="spec-table">
-                                            <button class="btn btn-round" @onclick='() => UpdateAmount(pm.ProductAmountList[i], -1)'>-</button>
-                                        </td>
-                                        <td class="spec-table" style="width: 50px; font-weight: bold; font-size: 24px; text-align: center">
-                                            @pm.ProductAmountList[i].Amount
-                                        </td>
-                                        <td class="spec-table">
-                                            <button class="btn btn-round" @onclick='() => UpdateAmount(pm.ProductAmountList[i], 1)'>+</button>
-                                        </td>
-                                        <td class="spec-table" style="width: 50px"></td>
-                                    </tr>
-                                </table>
-                            </td>
+                            <div style="width: 150px; margin:auto">
+                                <div style="display: grid; grid-template-columns: 50px 50px 50px">
+                                    <div>
+                                        <button class="btn btn-round" @onclick='() => UpdateAmount(pm.ProductAmountList[i], -1)'>-</button>
+                                    </div>
+                                    <div style="width: 50px; font-weight: bold; font-size: 24px; text-align: center; line-height: 50px">
+                                        @pm.ProductAmountList[i].Amount
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-round" @onclick='() => UpdateAmount(pm.ProductAmountList[i], 1)'>+</button>
+                                    </div>
+                                </div>
+                            </div>
                         }
                         else
                         {
-                            <td style="width: 200px"></td>
-
+                            <div style="width: 150px; margin: auto"></div>
                         }
                     }
-                    <td>
-                        <button class="btn btn-primary" @onclick='() => RemoveProduct(pm.Product.PName)'>Delete</button>
-                    </td>
-                </tr>
+                    <div style="margin: auto">
+                        <button class="btn btn-round" style="background-color: red; font-size: 30px; font-weight: bold" @onclick='() => RemoveProduct(pm.Product.PName)'>X</button>
+                    </div>
+                </div>
             }
-        </tbody>
-    </table>
+        </div>
+    </div>    
+}
+
+@if (ShowDelete == true)
+{
+
 }
 
 @code
@@ -136,26 +137,30 @@ else
     private List<string> checkedStorages = new List<string>();
     public string CurrentCategory { get; set; }
     public bool ShowAddNew { get; set; }
+    public bool ShowDelete { get; set; }
+    public string ChosenProduct { get; set; }
+    public int ColumnCount { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         CurrentCategory = ProductService.CurrentCategory;
         productModels = await ProductDataService.GetProductsByCategory();
-        storages = await ProductDataService.GetStorageTypes();
+        storages = await ProductDataService.GetStorageTypes(CurrentCategory);
+        ColumnCount = storages.Count();
     }
 
     private void BoxChecked(string storage, object checkedValue)
     {
-        if((bool) checkedValue)
+        if ((bool)checkedValue)
         {
-            if(!checkedStorages.Contains(storage))
+            if (!checkedStorages.Contains(storage))
             {
                 checkedStorages.Add(storage);
             }
         }
         else
         {
-            if(checkedStorages.Contains(storage))
+            if (checkedStorages.Contains(storage))
             {
                 checkedStorages.Remove(storage);
             }
@@ -165,7 +170,7 @@ else
     private void AddNewProduct()
     {
         List<ProductAmount> paList = new List<ProductAmount>();
-        foreach(string storage in checkedStorages)
+        foreach (string storage in checkedStorages)
         {
             paList.Add(new ProductAmount(prodName, storage, 0));
         }
@@ -182,10 +187,14 @@ else
         LoadProducts();
     }
 
-    private void RemoveProduct(string productName)
+    private async void RemoveProduct(string productName)
     {
-        ProductDataService.RemoveProduct(productName);
-        LoadProducts();
+        bool confirmed = await JsRunTime.InvokeAsync<bool>("confirm", "Are you sure?");
+        if (confirmed)
+        {
+            ProductDataService.RemoveProduct(productName);
+            LoadProducts();
+        }
     }
 
     private void GoToMain()
@@ -193,7 +202,7 @@ else
         NavMan.NavigateTo("/");
     }
 
-    private async void LoadProducts()
+    private async void LoadProducts() //Fetches the content from the database and refeshes the UI if content is different from last fetch
     {
         productModels = await ProductDataService.GetProductsByCategory();
         StateHasChanged();
