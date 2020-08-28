@@ -4,8 +4,8 @@
 @using InventoryChecker.Data.Entities
 @inject ProductService ProductDataService
 @inject NavigationManager NavMan
-@inject IJSRuntime JsRunTime
-
+@inject IToastService ToastService
+ 
 
 @if (ShowAddNew == true)
 {
@@ -13,8 +13,37 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 class="modal-title">Add Product</h3>
-                    <button type="button" class="close" @onclick='() => ShowAddNew = false'><span aria-hidden="true"></span>X</button>
+                    <h3 class="modal-title" style="margin: auto">Tilføj Produkt</h3>
+                </div>
+                <div class="modal-body">
+                    <label>Name</label>
+                    <input class="form-control" type="text" @bind="prodName" />
+                    <br />
+                    @foreach (StorageType storage in storages)
+                    {
+                        <input type="checkbox" id="@storage.Stype" @onchange='eventArgs => BoxChecked(storage.Stype, eventArgs.Value)' style="width: 30px; height: 30px" />
+                        <label for="@storage.Stype">@storage.Stype</label>
+                        <br />
+                    }
+                    <br />
+                    <br />
+                    <div style="display: flex; justify-content: center">
+                        <button class="btn btn-ui" style="margin-right: 10px" @onclick="AddNewProduct">GEM</button>
+                        <button class="btn btn-ui" style="margin-left: 10px" @onclick="CloseAddNewDialog">LUK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+@if (ShowEdit == true)
+{
+    <div class="modal" tabindex="-1" style="display: block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" style="margin: auto">Opdater Produkt</h3>
                 </div>
                 <div class="modal-body">
                     <label>Name</label>
@@ -28,7 +57,8 @@
                     }
                     <br />
                     <div style="display: flex; justify-content: center">
-                        <button class="btn btn-primary" @onclick="AddNewProduct">Save</button>
+                        <button class="btn btn-ui" style="margin-right: 10px">GEM</button>
+                        <button class="btn btn-ui" style="margin-left: 10px" @onclick="CloseEditDialog">LUK</button>
                     </div>
                 </div>
             </div>
@@ -47,34 +77,52 @@
 }
 else
 {
-    <div style="width: 1000px; height: 100%; margin: auto">
-        <div style="position: sticky; top: 0px; padding: 0 10px 0 10px; background-color: lightblue">
-            <div style="display: flex">
-                <div style="flex-grow: 1">
-                    <button class="btn btn-primary" @onclick="GoToMain">Kategorier</button>
-                </div>
-                <div style="align-content: center">
-                    <button class="btn btn-primary" @onclick='() => ShowAddNew = true'>Tilføj Produkt</button>
-                </div>
+    @*Menu*@
+    <div style="position: sticky; top: 0px; padding-top: 10px; background-color: lightblue">
+        <div style="display: flex">
+            <div style="flex-grow: 1">
+                <button class="btn btn-ui" @onclick="GoToMain">Kategorier</button>
             </div>
-            <br />
-            <div style="display:flex; justify-content: center; padding: 10px 0 10px 0">
-                <h1>@CurrentCategory</h1>
-            </div>
-            <div style="display: grid; grid-template-columns: 150px repeat(@ColumnCount, calc((100% - 250px)/@ColumnCount)) 100px; height: 50px; background-color: cadetblue; border-radius: 25px">
-                <div style="font-weight: bold; line-height: 50px; text-align: center">Name</div>
-                @foreach (StorageType storage in storages)
+            <div style="align-content: center">
+                @if (LoggedIn == true)
                 {
-                    <div style="font-weight: bold; line-height: 50px; text-align: center">@storage.Stype</div>
+                    <button class="btn btn-ui" style="margin-right: 20px" @onclick='() => ShowAddNew = true'>Tilføj Produkt</button>
                 }
-                <div></div>
+            </div>
+            <div style="align-content: center">
+                @if (LoggedIn == false)
+                {
+                    <button class="btn btn-ui" @onclick='() => LoggedIn = true'>Log på</button>
+                }
+                else
+                {
+                    <button class="btn btn-ui" @onclick='() => LoggedIn = false'>Log af</button>
+                }
             </div>
         </div>
-        <div style="padding: 10px">
-            @foreach (ProductModel pm in productModels)
+        <div style="display:flex; justify-content: center; padding: 10px 0 10px 0">
+            <h1 style="font-family: Copperplate Gothic Light, Helvetica">- @CurrentCategory -</h1>
+        </div>
+        <div style="display: grid; grid-template-columns: calc((100% - ((@ColumnCount * 200px) + 200px))/2) 200px repeat(@ColumnCount, 200px) calc((100% - ((@ColumnCount * 200px) + 200px))/2); height: 50px; color: white; background-color: midnightblue; box-shadow: 0 10px 10px -5px #00000088">
+            <div></div>
+            <div></div>
+            @foreach (StorageType storage in storages)
             {
-                <div style="display: grid; grid-template-columns: 150px repeat(@ColumnCount, calc((100% - 250px)/@ColumnCount)) 100px; padding: 20px 0 20px 0; margin-bottom: 10px; background-color: white; border-radius: 45px">
-                    <div style="line-height: 50px; text-align: center; font-weight: bold">@pm.Product.PName</div>
+                <div style="line-height: 50px; text-align: center; font-size: 20px">@storage.Stype</div>
+            }
+            <div></div>
+        </div>
+    </div>
+    @*Database result*@
+    <div style="padding: 10px 0 10px 0">
+        @foreach (ProductModel pm in productModels)
+        {
+            <div style="display: grid; grid-template-columns: calc((100% - ((@ColumnCount * 200px) + 200px))/2) auto calc((100% - ((@ColumnCount * 200px) + 200px))/2); margin-bottom: 10px">
+                <div></div>
+                <div style="display: grid; grid-template-columns: 200px repeat(@ColumnCount, 200px); padding: 20px 0 20px 0; background-color: white; border-radius: 45px; box-shadow: 0 3px 10px #00000088">
+                    <div style="line-height: 50px; text-align: center; font-size: 24px; font-style: italic">
+                        @pm.Product.PName
+                    </div>
                     @foreach (StorageType storage in storages)
                     {
                         found = false;
@@ -94,17 +142,31 @@ else
                         if (found)
                         {
                             int i = currentIndex;
-                            <div style="width: 150px; margin:auto">
+                            <div style="margin:auto">
                                 <div style="display: grid; grid-template-columns: 50px 50px 50px">
-                                    <div>
-                                        <button class="btn btn-round" @onclick='() => UpdateAmount(pm.ProductAmountList[i], -1)'>-</button>
-                                    </div>
-                                    <div style="width: 50px; font-weight: bold; font-size: 24px; text-align: center; line-height: 50px">
+                                    @if (pm.ProductAmountList[i].Amount > 0)
+                                    {
+                                        <div>
+                                            <button class="btn btn-round" @onclick='() => UpdateAmount(pm.ProductAmountList[i], -1)'>-</button>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div style="width: 50px"></div>
+                                    }
+                                    <div style="width: 50px; font-weight: bold; font-size: 24px; text-align: center; line-height: 50px; color: @SetTextColor(pm.ProductAmountList[i].Amount)">
                                         @pm.ProductAmountList[i].Amount
                                     </div>
-                                    <div>
-                                        <button class="btn btn-round" @onclick='() => UpdateAmount(pm.ProductAmountList[i], 1)'>+</button>
-                                    </div>
+                                    @if (pm.ProductAmountList[i].Amount < 999)
+                                    {
+                                        <div>
+                                            <button class="btn btn-round" @onclick='() => UpdateAmount(pm.ProductAmountList[i], 1)'>+</button>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div style="width: 50px"></div>
+                                    }
                                 </div>
                             </div>
                         }
@@ -113,18 +175,47 @@ else
                             <div style="width: 150px; margin: auto"></div>
                         }
                     }
-                    <div style="margin: auto">
-                        <button class="btn btn-round" style="background-color: red; font-size: 30px; font-weight: bold" @onclick='() => RemoveProduct(pm.Product.PName)'>X</button>
-                    </div>
                 </div>
-            }
-        </div>
-    </div>    
+                <div style="margin: auto">
+                    @if (LoggedIn == true)
+                    {
+                        <div style="display: grid; grid-template-columns: auto auto">
+                            <div>
+                                <button class="btn btn-round" style="margin-right: 25px; background-color: steelblue; font-size: 30px; font-weight: bold" @onclick='() => OpenEditDialog(pm)'>/</button>
+                            </div>
+                            <div>
+                                <button class="btn btn-round" style="margin-left: 25px; background-color: red; font-size: 30px; font-weight: bold" @onclick='() => ShowDeleteDialog(pm.Product.PName)'>X</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
 }
 
 @if (ShowDelete == true)
 {
-
+    <div class="modal" tabindex="-1" style="display: block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" style="margin: auto">Slet produkt</h3>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        All data for det her produktet vil blive slettet. Er du sikker?
+                    </div>
+                    <br />
+                    <div style="display: flex; justify-content: center">
+                        <button class="btn btn-ui" style="margin-right: 10px; background-color: red" @onclick='() => RemoveProduct(ChosenProduct)'>JA</button>
+                        <button class="btn btn-ui" style="margin-left: 10px" @onclick="CloseDeleteDialog">NEJ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
 }
 
 @code
@@ -137,16 +228,21 @@ else
     private List<string> checkedStorages = new List<string>();
     public string CurrentCategory { get; set; }
     public bool ShowAddNew { get; set; }
+    public bool ShowEdit { get; set; }
     public bool ShowDelete { get; set; }
-    public string ChosenProduct { get; set; }
     public int ColumnCount { get; set; }
+    public string ChosenProduct { get; set; }
+    public bool LoggedIn { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
         CurrentCategory = ProductService.CurrentCategory;
-        productModels = await ProductDataService.GetProductsByCategory();
-        storages = await ProductDataService.GetStorageTypes(CurrentCategory);
-        ColumnCount = storages.Count();
+        if (CurrentCategory.Length > 0)
+        {
+            productModels = await ProductDataService.GetProductsByCategory();
+            storages = await ProductDataService.GetStorageTypes(CurrentCategory);
+            ColumnCount = storages.Count();
+        }
     }
 
     private void BoxChecked(string storage, object checkedValue)
@@ -174,35 +270,75 @@ else
         {
             paList.Add(new ProductAmount(prodName, storage, 0));
         }
-        ProductDataService.AddProduct(new ProductModel(new Product(prodName, CurrentCategory), paList));
-        ShowAddNew = false;
+        if (prodName != null && checkedStorages.Count > 0)
+        {
+            if(ProductDataService.ProductExists(prodName) == false)
+            {
+                ProductDataService.AddProduct(new ProductModel(new Product(prodName, CurrentCategory), paList));
+                CloseAddNewDialog();
+                ToastService.ShowSuccess("Produkt tilføjet!");
+                ReloadProducts();
+            }
+        }
+    }
+    private void EditProduct(ProductModel productModel)
+    {
+        ProductDataService.UpdateProduct(productModel);
+    }
+    private void OpenEditDialog(ProductModel productModel)
+    {
+        prodName = productModel.Product.PName;
+        ShowEdit = true;
+    }
+    private void CloseAddNewDialog()
+    {
         prodName = "";
         checkedStorages.Clear();
-        LoadProducts();
+        ShowAddNew = false;
     }
-
+    private void CloseEditDialog()
+    {
+        prodName = "";
+        checkedStorages.Clear();
+        ShowEdit = false;
+    }
     private void UpdateAmount(ProductAmount productAmount, int amount)
     {
         ProductDataService.UpdateProductAmount(productAmount, amount);
-        LoadProducts();
+        ReloadProducts();
     }
-
-    private async void RemoveProduct(string productName)
+    private void ShowDeleteDialog(string productName)
     {
-        bool confirmed = await JsRunTime.InvokeAsync<bool>("confirm", "Are you sure?");
-        if (confirmed)
-        {
-            ProductDataService.RemoveProduct(productName);
-            LoadProducts();
-        }
+        ChosenProduct = productName;
+        ShowDelete = true;
     }
+    private void CloseDeleteDialog()
+    {
+        ChosenProduct = "";
+        ShowDelete = false;
+    }
+    private string SetTextColor(int amount)
+    {
+        string textColor;
+        if (amount > 0 && amount < 999)
+            textColor = "black";
+        else
+            textColor = "red";
 
+        return textColor;
+    }
+    private void RemoveProduct(string productName)
+    {
+        ProductDataService.RemoveProduct(productName);
+        CloseDeleteDialog();
+        ToastService.ShowSuccess("Produkt slettet!");
+        ReloadProducts();
+    }
     private void GoToMain()
     {
         NavMan.NavigateTo("/");
     }
-
-    private async void LoadProducts() //Fetches the content from the database and refeshes the UI if content is different from last fetch
+    private async void ReloadProducts() //Fetches the content from the database and refeshes the UI if content is different from last fetch
     {
         productModels = await ProductDataService.GetProductsByCategory();
         StateHasChanged();

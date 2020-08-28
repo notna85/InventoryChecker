@@ -4,6 +4,7 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background-color: lightblue;
     height: 100%;
+    width: 100%;
 }
 
 a, .btn-link {
@@ -15,6 +16,16 @@ a, .btn-link {
     background-color: #1b6ec2;
     border-color: #1861ac;
 }
+
+.btn-ui {
+    height: 50px; 
+    width: 200px; 
+    font-size: 24px; 
+    color: white; 
+    background-color: steelblue; 
+    border-radius: 25px;
+}
+
 .btn-round {
     color: #fff;
     background-color: darkseagreen;
@@ -186,8 +197,8 @@ app {
     }
 
     .main > div {
-        padding-left: 2rem !important;
-        padding-right: 1.5rem !important;
+/*        padding-left: 2rem !important;
+        padding-right: 1.5rem !important;*/
     }
 
     .navbar-toggler {

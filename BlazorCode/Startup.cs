@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using InventoryChecker.Data;
 using Microsoft.EntityFrameworkCore;
 using InventoryChecker.DAL;
+using Blazored.Toast;
 
 namespace InventoryChecker
 {
@@ -32,6 +33,7 @@ namespace InventoryChecker
             services.AddServerSideBlazor();
             services.AddDbContext<FreezerContext>(option => option.UseSqlServer(Configuration.GetConnectionString("FreezerDB")));
             services.AddTransient<ProductService>();
+            services.AddBlazoredToast();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

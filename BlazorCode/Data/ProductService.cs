@@ -32,6 +32,11 @@ namespace InventoryChecker.Data
             }
             dbContext.SaveChanges();
         }
+        public void UpdateProduct(ProductModel productModel)
+        {
+            dbContext.Entry(productModel.Product).State = EntityState.Modified;
+            dbContext.SaveChanges();
+        }
         public async Task<List<ProductModel>> GetProductsByCategory()
         {
             List<ProductModel> pmList = new List<ProductModel>();
@@ -61,8 +66,14 @@ namespace InventoryChecker.Data
         }
         public async Task<List<StorageType>> GetStorageTypes(string category)
         {
-            return await dbContext.StorageType.FromSqlRaw("select distinct SType from StorageType join ProductAmount on StorageType.SType = ProductAmount.StorageType join Product on Product.PName = ProductAmount.Product where Product.Category = '" + category + "'").ToListAsync();
-            //return await dbContext.StorageType.ToListAsync();
+            return await dbContext.StorageType.FromSqlRaw("Get_Storages_By_Category @p0", category).ToListAsync();
+        }
+        public bool ProductExists(string productName)
+        {
+            if (dbContext.Product.Find(productName) == null)
+                return false;
+            else
+                return true;
         }
     }
 }
