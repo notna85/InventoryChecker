@@ -2,7 +2,7 @@
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background-color: lightblue;
+    background-color: lavender;
     height: 100%;
     width: 100%;
 }
@@ -18,17 +18,23 @@ a, .btn-link {
 }
 
 .btn-ui {
-    height: 50px; 
-    width: 200px; 
-    font-size: 24px; 
-    color: white; 
-    background-color: steelblue; 
+    height: 50px;
+    min-width: 200px;
+    font-size: 24px;
+    color: white;
+    background-color: steelblue;
+    border: none;
     border-radius: 25px;
+    box-shadow: 0 3px 4px #00000088, inset 0 2px 3px #ffffffaa;
+}
+.btn-ui:focus {
+    outline: none;
 }
 
 .btn-round {
     color: #fff;
-    background-color: darkseagreen;
+    outline: none;
+    border: none;
     border-radius: 50%;
     width: 50px;
     height: 50px;
@@ -36,11 +42,94 @@ a, .btn-link {
     line-height: 50px;
     padding: 0;
     margin: 0;
+    box-shadow: 0 3px 4px #00000088, inset 0 2px 3px #ffffffaa;
 }
-.spec-table {
-    vertical-align: middle !important;
-    border-top: none !important;
-    max-width: 50px !important;
+.btn-round:focus {
+    outline: none;
+}
+
+.btn-green {
+    background-color: darkseagreen;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#397), to(#ae9));
+    background-image: -webkit-linear-gradient(top, #397, #ae9);
+    background-image: -moz-linear-gradient(top, #397, #ae9);
+    background-image: -o-linear-gradient(top, #397, #ae9);
+}
+.btn-green:active {
+    color: #fff5;
+    background: #397;
+}
+.btn-blue {
+    background-color: steelblue;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#74c), to(#358));
+    background-image: -webkit-linear-gradient(top, #74c, #6be);
+    background-image: -moz-linear-gradient(top, #74c, #6be);
+    background-image: -o-linear-gradient(top, #74c, #6be);
+}
+.btn-blue:active {
+    color: #fff5;
+    background: #74c;
+}
+.btn-red {
+    background-color: red;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#827), to(#f54));
+    background-image: -webkit-linear-gradient(top, #827, #f54);
+    background-image: -moz-linear-gradient(top, #827, #f54);
+    background-image: -o-linear-gradient(top, #827, #f54);
+}
+.btn-red:active {
+    color: #fff5;
+    background: #827;
+}
+.datarow {
+    background-color: white;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#e7e7e7));
+    background-image: -webkit-linear-gradient(top, #fff, #e7e7e7);
+    background-image: -moz-linear-gradient(top, #fff, #e7e7e7);
+    background-image: -o-linear-gradient(top, #fff, #e7e7e7);
+    box-shadow: 0 3px 10px #00000088;
+}
+.dialog-style {
+    background-color: lavender;
+    border: none;
+    border-radius: 50px
+}
+.checkbox-container {
+    position: relative;
+    padding-left: 60px;
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-style: italic;
+    line-height: 40px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.checkbox-custom {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    background-color: #fff;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#e7e7e7), to(#fff));
+    background-image: -webkit-linear-gradient(top, #e7e7e7, #fff);
+    background-image: -moz-linear-gradient(top, #e7e7e7, #fff);
+    background-image: -o-linear-gradient(top, #e7e7e7, #fff);
+    box-shadow: 0 3px 4px #00000088, inset 0 2px 3px #ffffffaa;
+}
+.checkbox-custom:active {
+    background: #e7e7e7;
+}
+.checkbox-container input:checked ~ .checkbox-custom:after {
+    content: '\2714';
+	font-size: 40px;
+	position: absolute;
+	color: #0d0;
 }
 
 app {

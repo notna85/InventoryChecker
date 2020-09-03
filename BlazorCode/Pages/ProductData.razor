@@ -5,125 +5,64 @@
 @inject ProductService ProductDataService
 @inject NavigationManager NavMan
 @inject IToastService ToastService
- 
 
-@if (ShowAddNew == true)
-{
-    <div class="modal" tabindex="-1" style="display: block" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title" style="margin: auto">Tilføj Produkt</h3>
-                </div>
-                <div class="modal-body">
-                    <label>Name</label>
-                    <input class="form-control" type="text" @bind="prodName" />
-                    <br />
-                    @foreach (StorageType storage in storages)
-                    {
-                        <input type="checkbox" id="@storage.Stype" @onchange='eventArgs => BoxChecked(storage.Stype, eventArgs.Value)' style="width: 30px; height: 30px" />
-                        <label for="@storage.Stype">@storage.Stype</label>
-                        <br />
-                    }
-                    <br />
-                    <br />
-                    <div style="display: flex; justify-content: center">
-                        <button class="btn btn-ui" style="margin-right: 10px" @onclick="AddNewProduct">GEM</button>
-                        <button class="btn btn-ui" style="margin-left: 10px" @onclick="CloseAddNewDialog">LUK</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal-backdrop fade show"></div>
-}
-@if (ShowEdit == true)
-{
-    <div class="modal" tabindex="-1" style="display: block" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title" style="margin: auto">Opdater Produkt</h3>
-                </div>
-                <div class="modal-body">
-                    <label>Name</label>
-                    <input class="form-control" type="text" @bind="prodName" />
-                    <br />
-                    @foreach (StorageType storage in storages)
-                    {
-                        <input type="checkbox" id="@storage.Stype" @onchange='eventArgs => BoxChecked(storage.Stype, eventArgs.Value)' style="width: 30px; height: 30px" />
-                        <label for="@storage.Stype">@storage.Stype</label>
-                        <br />
-                    }
-                    <br />
-                    <div style="display: flex; justify-content: center">
-                        <button class="btn btn-ui" style="margin-right: 10px">GEM</button>
-                        <button class="btn btn-ui" style="margin-left: 10px" @onclick="CloseEditDialog">LUK</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal-backdrop fade show"></div>
-}
 @if (CurrentCategory == "")
 {
     GoToMain();
 }
-
 @if (productModels == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    @*Menu*@
-    <div style="position: sticky; top: 0px; padding-top: 10px; background-color: lightblue">
-        <div style="display: flex">
+    @*---Menu---*@
+    <div style="position: sticky; top: 0px; padding-top: 20px; background-color: lavender">
+        <div style="display: flex; padding: 0 20px 0 20px">
             <div style="flex-grow: 1">
-                <button class="btn btn-ui" @onclick="GoToMain">Kategorier</button>
+                <button class="btn-ui btn-blue" @onclick="GoToMain">Kategorier</button>
             </div>
             <div style="align-content: center">
                 @if (LoggedIn == true)
                 {
-                    <button class="btn btn-ui" style="margin-right: 20px" @onclick='() => ShowAddNew = true'>Tilføj Produkt</button>
+                    <button class="btn-ui btn-blue" style="margin: 0 20px 0 20px" @onclick="PrepareAddNewDialog">Tilføj produkt</button>
                 }
             </div>
             <div style="align-content: center">
                 @if (LoggedIn == false)
                 {
-                    <button class="btn btn-ui" @onclick='() => LoggedIn = true'>Log på</button>
+                    <button class="btn-ui btn-blue" @onclick='() => ShowLogOnDialog = true'>Log på</button>
                 }
                 else
                 {
-                    <button class="btn btn-ui" @onclick='() => LoggedIn = false'>Log af</button>
+                    <button class="btn-ui btn-blue" @onclick='() => LoggedIn = false'>Log af</button>
                 }
             </div>
         </div>
         <div style="display:flex; justify-content: center; padding: 10px 0 10px 0">
             <h1 style="font-family: Copperplate Gothic Light, Helvetica">- @CurrentCategory -</h1>
         </div>
-        <div style="display: grid; grid-template-columns: calc((100% - ((@ColumnCount * 200px) + 200px))/2) 200px repeat(@ColumnCount, 200px) calc((100% - ((@ColumnCount * 200px) + 200px))/2); height: 50px; color: white; background-color: midnightblue; box-shadow: 0 10px 10px -5px #00000088">
+        <div style="display: grid; grid-template-columns: calc((100% - ((@ColumnCount * 200px) + 200px))/2) 200px repeat(@ColumnCount, 200px) calc((100% - ((@ColumnCount * 200px) + 200px))/2); height: 50px; color: white; background-color: midnightblue; box-shadow: 0 4px 8px 0px #00000088">
             <div></div>
             <div></div>
-            @foreach (StorageType storage in storages)
+            @foreach (StorageType storage in storagesByCategory)
             {
-                <div style="line-height: 50px; text-align: center; font-size: 20px">@storage.Stype</div>
+                <div style="line-height: 50px; text-align: center; font-size: 20px">@storage.Stype.ToUpper()</div>
             }
             <div></div>
         </div>
     </div>
-    @*Database result*@
+    @*---Database result---*@
     <div style="padding: 10px 0 10px 0">
         @foreach (ProductModel pm in productModels)
         {
             <div style="display: grid; grid-template-columns: calc((100% - ((@ColumnCount * 200px) + 200px))/2) auto calc((100% - ((@ColumnCount * 200px) + 200px))/2); margin-bottom: 10px">
                 <div></div>
-                <div style="display: grid; grid-template-columns: 200px repeat(@ColumnCount, 200px); padding: 20px 0 20px 0; background-color: white; border-radius: 45px; box-shadow: 0 3px 10px #00000088">
+                <div class="datarow" style="display: grid; grid-template-columns: 200px repeat(@ColumnCount, 200px); padding: 20px 0 20px 0; border-radius: 45px">
                     <div style="line-height: 50px; text-align: center; font-size: 24px; font-style: italic">
                         @pm.Product.PName
                     </div>
-                    @foreach (StorageType storage in storages)
+                    @foreach (StorageType storage in storagesByCategory)
                     {
                         found = false;
                         currentIndex = 0;
@@ -147,7 +86,7 @@ else
                                     @if (pm.ProductAmountList[i].Amount > 0)
                                     {
                                         <div>
-                                            <button class="btn btn-round" @onclick='() => UpdateAmount(pm.ProductAmountList[i], -1)'>-</button>
+                                            <button class="btn-round btn-green" @onclick='() => UpdateAmount(pm.ProductAmountList[i], -1)'>-</button>
                                         </div>
                                     }
                                     else
@@ -160,7 +99,7 @@ else
                                     @if (pm.ProductAmountList[i].Amount < 999)
                                     {
                                         <div>
-                                            <button class="btn btn-round" @onclick='() => UpdateAmount(pm.ProductAmountList[i], 1)'>+</button>
+                                            <button class="btn-round btn-green" @onclick='() => UpdateAmount(pm.ProductAmountList[i], 1)'>+</button>
                                         </div>
                                     }
                                     else
@@ -181,10 +120,10 @@ else
                     {
                         <div style="display: grid; grid-template-columns: auto auto">
                             <div>
-                                <button class="btn btn-round" style="margin-right: 25px; background-color: steelblue; font-size: 30px; font-weight: bold" @onclick='() => OpenEditDialog(pm)'>/</button>
+                                <button class="btn-round btn-blue" style="width: 70px; border-radius: 25px; margin-right: 20px; font-size: 30px" @onclick='() => PrepareEditDialog(pm)'>&#9998</button>
                             </div>
                             <div>
-                                <button class="btn btn-round" style="margin-left: 25px; background-color: red; font-size: 30px; font-weight: bold" @onclick='() => ShowDeleteDialog(pm.Product.PName)'>X</button>
+                                <button class="btn-round btn-red" style="width: 70px; border-radius: 25px; margin-left: 20px; font-size: 30px" @onclick='() => PrepareDeleteConfirmDialog(pm.Product.PName)'>&#128465</button>
                             </div>
                         </div>
                     }
@@ -194,22 +133,110 @@ else
     </div>
 }
 
-@if (ShowDelete == true)
+@if (ShowProductDialog == true)
 {
     <div class="modal" tabindex="-1" style="display: block" role="dialog">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title" style="margin: auto">Slet produkt</h3>
+            <div class="modal-content dialog-style">
+                <div class="modal-header" style="border-bottom: none">
+                    <h3 class="modal-title" style="margin: auto; font-family: Copperplate Gothic Light, Helvetica">- @ProductDialogTitle.ToUpper() -</h3>
                 </div>
-                <div class="modal-body">
-                    <div>
-                        All data for det her produktet vil blive slettet. Er du sikker?
+                <div class="modal-body" style="padding: 20px 40px 40px 40px">
+                    <label style="font-size: 20px; font-style: italic">Navn</label>
+                    <input class="form-control" type="text" style="font-size: 20px; box-shadow: inset 2px 2px 5px #0005" @bind="prodName" />
+                    @if (nameExist == true)
+                    {
+                        <div style="height: 40px; color: red; font-size: 20px; font-style: italic">*Navnet findes allereden i databasen!</div>
+                    }
+                    else if (nameEmpty == true)
+                    {
+                        <div style="height: 40px; color: red; font-size: 20px; font-style: italic">*Navnefeltet må ikke være tomt!</div>
+                    }
+                    else
+                    {
+                        <div style="height: 40px"></div>
+                    }
+                    @foreach (StorageType storage in storagesAll)
+                    {
+                        boxChecked = false;
+                        @if (checkedStorages.Contains(storage.Stype))
+                        {
+                            boxChecked = true;
+                        }
+                        <label class="checkbox-container">
+                            @storage.Stype
+                            <input type="checkbox" id="@storage.Stype" checked=@boxChecked @onchange='eventArgs => BoxChecked(storage.Stype, eventArgs.Value)' style="height: 0" />
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <br />
+                    }
+                    @if (checkboxEmpty == true)
+                    {
+                        <div style="height: 40px; color: red; font-size: 20px; font-style: italic">*Vælg mindst en opbevaringstype!</div>
+                    }
+                    else
+                    {
+                        <div style="height: 40px"></div>
+                    }
+                    <br />
+                    <div style="display: flex; justify-content: center">
+                        @if (IsEdit == true)
+                        {
+                            <button class="btn-ui btn-blue" style="margin-right: 10px" @onclick="CheckIfShouldConfirm">Gem</button>
+                        }
+                        else
+                        {
+                            <button class="btn-ui btn-blue" style="margin-right: 10px" @onclick="AddNewProduct">Gem</button>
+                        }
+                        <button class="btn-ui btn-blue" style="margin-left: 10px" @onclick="CloseProductDialog">Luk</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@if (ShowConfirmDialog == true)
+{
+    <div class="modal" tabindex="-1" style="display: block; background-color: rgba(0,0,0,0.5)" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content dialog-style">
+                <div class="modal-body" style="padding: 40px 40px 40px 40px">
+                    <div style="font-size: 20px; font-style: italic">
+                        @ConfirmDialogText
                     </div>
                     <br />
                     <div style="display: flex; justify-content: center">
-                        <button class="btn btn-ui" style="margin-right: 10px; background-color: red" @onclick='() => RemoveProduct(ChosenProduct)'>JA</button>
-                        <button class="btn btn-ui" style="margin-left: 10px" @onclick="CloseDeleteDialog">NEJ</button>
+                        @if (IsEdit == true)
+                        {
+                            <button class="btn-ui btn-red" style="margin-right: 10px" @onclick="EditProduct">Ja</button>
+                        }
+                        else
+                        {
+                            <button class="btn-ui btn-red" style="margin-right: 10px" @onclick='() => RemoveProduct(ChosenProduct)'>Ja</button>
+                        }
+                        <button class="btn-ui btn-blue" style="margin-left: 10px" @onclick="CloseConfirmDialog">Nej</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" style="visibility: hidden !important"></div>
+}
+
+@if (ShowLogOnDialog == true)
+{
+    <div class="modal" tabindex="-1" style="display: block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content dialog-style">
+                <div class="modal-body" style="padding: 40px 40px 40px 40px">
+                    <label style="font-size: 20px; font-style: italic">Indtast adgangskode</label>
+                    <input class="form-control" type="text" style="font-size: 20px; box-shadow: inset 2px 2px 5px #0005" @bind="password" />
+                    <br />
+                    <div style="display: flex; justify-content: center">
+                        <button class="btn-ui btn-blue" style="margin-right: 10px" @onclick="ValidateLogin">Log på</button>
+                        <button class="btn-ui btn-blue" style="margin-left: 10px" @onclick='() => ShowLogOnDialog = false'>Luk</button>
                     </div>
                 </div>
             </div>
@@ -220,19 +247,34 @@ else
 
 @code
 {
-    private int currentIndex;
-    private bool found;
-    private string prodName;
     private List<ProductModel> productModels;
-    private List<StorageType> storages;
+    private List<StorageType> storagesByCategory;
+    private List<StorageType> storagesAll;
     private List<string> checkedStorages = new List<string>();
+    private List<string> uncheckedStorages = new List<string>();
+
+    private string prodName = "";
+    private string prodNameOld = "";
     public string CurrentCategory { get; set; }
-    public bool ShowAddNew { get; set; }
-    public bool ShowEdit { get; set; }
-    public bool ShowDelete { get; set; }
-    public int ColumnCount { get; set; }
+    public string ProductDialogTitle { get; set; }
+    public string ConfirmDialogTitle { get; set; }
+    public RenderFragment ConfirmDialogText { get; set; }
     public string ChosenProduct { get; set; }
+    private string password = "";
+
+    private int currentIndex;
+    public int ColumnCount { get; set; }
+
+    private bool found;
+    private bool boxChecked;
     public bool LoggedIn { get; set; } = false;
+    public bool IsEdit { get; set; }
+    public bool ShowProductDialog { get; set; }
+    public bool ShowConfirmDialog { get; set; }
+    public bool ShowLogOnDialog { get; set; }
+    private bool nameEmpty;
+    private bool nameExist;
+    private bool checkboxEmpty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -240,8 +282,9 @@ else
         if (CurrentCategory.Length > 0)
         {
             productModels = await ProductDataService.GetProductsByCategory();
-            storages = await ProductDataService.GetStorageTypes(CurrentCategory);
-            ColumnCount = storages.Count();
+            storagesByCategory = await ProductDataService.GetStorageTypesByCategory(CurrentCategory);
+            storagesAll = await ProductDataService.GetStorageTypes();
+            ColumnCount = storagesByCategory.Count();
         }
     }
 
@@ -253,6 +296,10 @@ else
             {
                 checkedStorages.Add(storage);
             }
+            if (uncheckedStorages.Contains(storage))
+            {
+                uncheckedStorages.Remove(storage);
+            }
         }
         else
         {
@@ -260,87 +307,169 @@ else
             {
                 checkedStorages.Remove(storage);
             }
-        }
-    }
-
-    private void AddNewProduct()
-    {
-        List<ProductAmount> paList = new List<ProductAmount>();
-        foreach (string storage in checkedStorages)
-        {
-            paList.Add(new ProductAmount(prodName, storage, 0));
-        }
-        if (prodName != null && checkedStorages.Count > 0)
-        {
-            if(ProductDataService.ProductExists(prodName) == false)
+            if (!uncheckedStorages.Contains(storage))
             {
-                ProductDataService.AddProduct(new ProductModel(new Product(prodName, CurrentCategory), paList));
-                CloseAddNewDialog();
-                ToastService.ShowSuccess("Produkt tilføjet!");
-                ReloadProducts();
+                uncheckedStorages.Add(storage);
             }
         }
     }
-    private void EditProduct(ProductModel productModel)
+    private void ValidateLogin()
     {
-        ProductDataService.UpdateProduct(productModel);
+        LoggedIn = true;
+        ShowLogOnDialog = false;
     }
-    private void OpenEditDialog(ProductModel productModel)
+    //Method checks if submitted data meets the requirements and returns a boolean value depending on the results
+    private bool IsValidSubmit()
+    {
+        if (prodName.ToUpper() != prodNameOld.ToUpper())
+        {
+            if (ProductDataService.ProductExists(prodName) == true)
+                nameExist = true;
+            else
+                nameExist = false;
+        }
+        else
+            nameExist = false;
+
+        if (prodName.Length == 0)
+            nameEmpty = true;
+        else
+            nameEmpty = false;
+
+        if (checkedStorages.Count == 0)
+            checkboxEmpty = true;
+        else
+            checkboxEmpty = false;
+
+        if (!nameExist && !nameEmpty && !checkboxEmpty)
+            return true;
+        else
+            return false;
+    }
+    private void AddNewProduct()
+    {
+        if (IsValidSubmit() == true)
+        {
+            List<ProductAmount> paList = new List<ProductAmount>();
+
+            foreach (string storage in checkedStorages)
+            {
+                paList.Add(new ProductAmount(prodName, storage, 0));
+            }
+            ProductDataService.AddProduct(new ProductModel(new Product(prodName, CurrentCategory), paList));
+            CloseProductDialog();
+            ToastService.ShowSuccess("Produkt tilføjet!");
+            ReloadProducts();
+        }
+    }
+    private void EditProduct()
+    {
+        if (IsValidSubmit() == true)
+        {
+            ProductDataService.UpdateProduct(prodNameOld, prodName, checkedStorages, uncheckedStorages);
+            CloseConfirmDialog();
+            CloseProductDialog();
+            ToastService.ShowSuccess("Produkt opdateret!");
+            ReloadProducts();
+        }
+    }
+    private void PrepareAddNewDialog()
+    {
+        IsEdit = false;
+        ProductDialogTitle = "Tilføj produkt";
+        ShowProductDialog = true;
+    }
+    private void PrepareEditDialog(ProductModel productModel)
     {
         prodName = productModel.Product.PName;
-        ShowEdit = true;
+        prodNameOld = prodName;
+        foreach (ProductAmount pa in productModel.ProductAmountList)
+        {
+            checkedStorages.Add(pa.StorageType);
+        }
+        foreach (StorageType storage in storagesAll)
+        {
+            if (!checkedStorages.Contains(storage.Stype))
+            {
+                uncheckedStorages.Add(storage.Stype);
+            }
+        }
+        IsEdit = true;
+        ProductDialogTitle = "Opdater produkt";
+        ShowProductDialog = true;
     }
-    private void CloseAddNewDialog()
+    private void CloseProductDialog()
     {
+        nameEmpty = false;
+        nameExist = false;
+        checkboxEmpty = false;
         prodName = "";
+        prodNameOld = "";
         checkedStorages.Clear();
-        ShowAddNew = false;
-    }
-    private void CloseEditDialog()
-    {
-        prodName = "";
-        checkedStorages.Clear();
-        ShowEdit = false;
+        uncheckedStorages.Clear();
+        ShowProductDialog = false;
     }
     private void UpdateAmount(ProductAmount productAmount, int amount)
     {
         ProductDataService.UpdateProductAmount(productAmount, amount);
         ReloadProducts();
     }
-    private void ShowDeleteDialog(string productName)
+    private void CheckIfShouldConfirm()
     {
-        ChosenProduct = productName;
-        ShowDelete = true;
+        if (IsValidSubmit() == true)
+        {
+            if (ProductDataService.ProductAmountExists(prodNameOld, uncheckedStorages) == true)
+                PrepareEditConfirmDialog();
+            else
+                EditProduct();
+        }
     }
-    private void CloseDeleteDialog()
+    private void PrepareEditConfirmDialog()
     {
-        ChosenProduct = "";
-        ShowDelete = false;
-    }
-    private string SetTextColor(int amount)
-    {
-        string textColor;
-        if (amount > 0 && amount < 999)
-            textColor = "black";
-        else
-            textColor = "red";
+        IsEdit = true;
+        ConfirmDialogTitle = "Opdater produkt";
+        ConfirmDialogText =@<p>En eller flere opbevaringstyper er blevet fravalgt. Eksisterende data vil blive slettet. <br />Er du sikker?</p>;
+ShowConfirmDialog = true;
+}
+private void PrepareDeleteConfirmDialog(string productName)
+{
+ChosenProduct = productName;
+IsEdit = false;
+ConfirmDialogTitle = "Slet produkt";
+ConfirmDialogText = @<p>All data for det her produktet vil blive slettet. <br />Er du sikker?</p>;
+ShowConfirmDialog = true;
+}
+private void CloseConfirmDialog()
+{
+ChosenProduct = "";
+ShowConfirmDialog = false;
+}
+private string SetTextColor(int amount)
+{
+string textColor;
+if (amount > 0 && amount < 999)
+textColor = "black";
+else
+textColor = "red";
 
-        return textColor;
-    }
-    private void RemoveProduct(string productName)
-    {
-        ProductDataService.RemoveProduct(productName);
-        CloseDeleteDialog();
-        ToastService.ShowSuccess("Produkt slettet!");
-        ReloadProducts();
-    }
-    private void GoToMain()
-    {
-        NavMan.NavigateTo("/");
-    }
-    private async void ReloadProducts() //Fetches the content from the database and refeshes the UI if content is different from last fetch
-    {
-        productModels = await ProductDataService.GetProductsByCategory();
-        StateHasChanged();
-    }
+return textColor;
+}
+private void RemoveProduct(string productName)
+{
+ProductDataService.RemoveProduct(productName);
+CloseConfirmDialog();
+ToastService.ShowSuccess("Produkt slettet!");
+ReloadProducts();
+}
+private void GoToMain()
+{
+NavMan.NavigateTo("/");
+}
+private async void ReloadProducts() //Fetches the content from the database and refeshes the UI if content is different from last fetch
+{
+productModels = await ProductDataService.GetProductsByCategory();
+storagesByCategory = await ProductDataService.GetStorageTypesByCategory(CurrentCategory);
+ColumnCount = storagesByCategory.Count();
+StateHasChanged();
+}
 }

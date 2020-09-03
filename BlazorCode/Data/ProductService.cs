@@ -1,6 +1,5 @@
 ﻿using InventoryChecker.DAL;
 using InventoryChecker.Data.Entities;
-using InventoryChecker.Interfaces;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -32,10 +31,17 @@ namespace InventoryChecker.Data
             }
             dbContext.SaveChanges();
         }
-        public void UpdateProduct(ProductModel productModel)
+        public void UpdateProduct(string oldName, string newName, List<string> checkedStorages, List<string> uncheckedStorages)
         {
-            dbContext.Entry(productModel.Product).State = EntityState.Modified;
-            dbContext.SaveChanges();
+            AddProductAmount(oldName, checkedStorages);
+            RemoveProductAmount(oldName, uncheckedStorages);
+
+            if (newName != oldName)
+            {
+                Product product = dbContext.Product.Find(oldName);
+                dbContext.Entry(product).State = EntityState.Detached; //Removes entity from database context so that its primary key values can be updated
+                dbContext.Database.ExecuteSqlRaw("Update_Product @p0, @p1", oldName, newName);
+            }
         }
         public async Task<List<ProductModel>> GetProductsByCategory()
         {
@@ -60,13 +66,47 @@ namespace InventoryChecker.Data
             dbContext.Product.Remove(product);
             dbContext.SaveChanges();
         }
+        public void AddProductAmount(string productName, List<string> checkedStorageTypes)
+        {
+            ProductAmount productAmount;
+            foreach (string storage in checkedStorageTypes)
+            {
+                productAmount = dbContext.ProductAmount.Find(productName, storage);
+                if (productAmount == null)
+                {
+                    dbContext.ProductAmount.Add(new ProductAmount(productName, storage, 0));
+                    dbContext.SaveChanges();
+                }
+            }
+        }
+        public void RemoveProductAmount(string productName, List<string> uncheckedStorageTypes)
+        {
+            ProductAmount productAmount;
+            foreach (string storage in uncheckedStorageTypes)
+            {
+                productAmount = dbContext.ProductAmount.Find(productName, storage);
+                if (productAmount != null)
+                {
+                    dbContext.ProductAmount.Remove(productAmount);
+                    dbContext.SaveChanges();
+                }
+            }
+        }
         public async Task<List<Category>> GetCategories()
         {
             return await dbContext.Category.ToListAsync();
         }
-        public async Task<List<StorageType>> GetStorageTypes(string category)
+        public async Task<List<StorageType>> GetStorageTypes()
+        {
+            return await dbContext.StorageType.ToListAsync();
+        }
+        public async Task<List<StorageType>> GetStorageTypesByCategory(string category)
         {
             return await dbContext.StorageType.FromSqlRaw("Get_Storages_By_Category @p0", category).ToListAsync();
+        }
+        public async Task<ProductAmount> GetProductAmount(string oldName, string storage)
+        {
+            return await dbContext.ProductAmount.FindAsync(oldName, storage);
         }
         public bool ProductExists(string productName)
         {
@@ -74,6 +114,19 @@ namespace InventoryChecker.Data
                 return false;
             else
                 return true;
+        }
+        public bool ProductAmountExists(string productName, List<string> storageTypes)
+        {
+            ProductAmount productAmount;
+            foreach (string storage in storageTypes)
+            {
+                productAmount = dbContext.ProductAmount.Find(productName, storage);
+                if (productAmount != null)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
