@@ -1,7 +1,6 @@
 ﻿using InventoryChecker.DAL;
 using InventoryChecker.Data.Entities;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -16,16 +15,24 @@ namespace InventoryChecker.Data
     public class ProductService
     {
         FreezerContext dbContext;
-        public static string CurrentCategory { get; set; }
+        public static string CurrentCategory { get; set; } //static variable used to keep track of what category you're working with
 
-        public ProductService(FreezerContext context)
+        public ProductService(FreezerContext context) //Constructor sets the value of the database context object
         {
             dbContext = context;
         }
-        public void AddProduct(ProductModel productModel)
+        public bool CheckLogin(string password)
         {
-            dbContext.Product.Add(productModel.Product);
-            foreach(ProductAmount pa in productModel.ProductAmountList)
+            int result = dbContext.Database.ExecuteSqlRaw("Is_Login_Valid @p0", password);
+            if (result == 1)
+                return true;
+            else
+                return false;
+        }
+        public void AddProduct(Product product, List<ProductAmount> paList)
+        {
+            dbContext.Product.Add(product);
+            foreach(ProductAmount pa in paList)
             {
                 dbContext.ProductAmount.Add(pa);
             }
@@ -33,8 +40,8 @@ namespace InventoryChecker.Data
         }
         public void UpdateProduct(string oldName, string newName, List<string> checkedStorages, List<string> uncheckedStorages)
         {
-            AddProductAmount(oldName, checkedStorages);
-            RemoveProductAmount(oldName, uncheckedStorages);
+            PrepareAddProductAmount(oldName, checkedStorages);
+            PrepareRemoveProductAmount(oldName, uncheckedStorages);
 
             if (newName != oldName)
             {
@@ -43,43 +50,31 @@ namespace InventoryChecker.Data
                 dbContext.Database.ExecuteSqlRaw("Update_Product @p0, @p1", oldName, newName);
             }
         }
-        public async Task<List<ProductModel>> GetProductsByCategory()
+        public async Task<List<Product>> GetProductsByCategory(string category)
         {
-            List<ProductModel> pmList = new List<ProductModel>();
-            List<Product> pList = await dbContext.Product.Where(p => p.Category == CurrentCategory).ToListAsync();
-            foreach(Product p in pList)
-            {
-                List<ProductAmount> paList = dbContext.ProductAmount.Where(pa => pa.Product == p.PName).ToList();
-                ProductModel pm = new ProductModel(p, paList);
-                pmList.Add(pm);
-            }
-            return pmList; 
+            return await dbContext.Product.Where(p => p.Category == category).ToListAsync();
         }
         public void UpdateProductAmount(ProductAmount productAmount, int amount)
         {
             dbContext.Database.ExecuteSqlRaw("Update_Amount @p0, @p1, @p2", amount, productAmount.Product, productAmount.StorageType);
             dbContext.Entry(productAmount).State = EntityState.Detached; //Removes entity from database context so that an updated one can be fetched
         }
-        public void RemoveProduct(string productname)
+        public void RemoveProduct(Product product)
         {
-            Product product = dbContext.Product.Find(productname);
             dbContext.Product.Remove(product);
             dbContext.SaveChanges();
         }
-        public void AddProductAmount(string productName, List<string> checkedStorageTypes)
+        public void PrepareAddProductAmount(string productName, List<string> checkedStorageTypes)
         {
-            ProductAmount productAmount;
             foreach (string storage in checkedStorageTypes)
             {
-                productAmount = dbContext.ProductAmount.Find(productName, storage);
-                if (productAmount == null)
+                if (dbContext.ProductAmount.Find(productName, storage) == null)
                 {
-                    dbContext.ProductAmount.Add(new ProductAmount(productName, storage, 0));
-                    dbContext.SaveChanges();
+                    AddProductAmount(new ProductAmount(productName, storage, 0));
                 }
             }
         }
-        public void RemoveProductAmount(string productName, List<string> uncheckedStorageTypes)
+        public void PrepareRemoveProductAmount(string productName, List<string> uncheckedStorageTypes)
         {
             ProductAmount productAmount;
             foreach (string storage in uncheckedStorageTypes)
@@ -87,10 +82,19 @@ namespace InventoryChecker.Data
                 productAmount = dbContext.ProductAmount.Find(productName, storage);
                 if (productAmount != null)
                 {
-                    dbContext.ProductAmount.Remove(productAmount);
-                    dbContext.SaveChanges();
+                    RemoveProductAmount(productAmount);
                 }
             }
+        }
+        public void AddProductAmount(ProductAmount productAmount)
+        {
+            dbContext.ProductAmount.Add(productAmount);
+            dbContext.SaveChanges();
+        }
+        public void RemoveProductAmount(ProductAmount productAmount)
+        {
+            dbContext.ProductAmount.Remove(productAmount);
+            dbContext.SaveChanges();
         }
         public async Task<List<Category>> GetCategories()
         {
@@ -108,6 +112,10 @@ namespace InventoryChecker.Data
         {
             return await dbContext.ProductAmount.FindAsync(oldName, storage);
         }
+        public async Task<List<ProductAmount>> GetProductAmountsByProduct(Product product)
+        {
+            return await dbContext.ProductAmount.Where(pa => pa.Product == product.PName).ToListAsync();
+        }
         public bool ProductExists(string productName)
         {
             if (dbContext.Product.Find(productName) == null)
@@ -117,11 +125,9 @@ namespace InventoryChecker.Data
         }
         public bool ProductAmountExists(string productName, List<string> storageTypes)
         {
-            ProductAmount productAmount;
             foreach (string storage in storageTypes)
             {
-                productAmount = dbContext.ProductAmount.Find(productName, storage);
-                if (productAmount != null)
+                if (dbContext.ProductAmount.Find(productName, storage) != null)
                 {
                     return true;
                 }

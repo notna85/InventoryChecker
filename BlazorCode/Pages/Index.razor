@@ -7,23 +7,23 @@
 
 @if (categories == null)
 {
-    <p><em>Loading...</em></p>
+    <p style="margin-left: 20px"><em>Loading...</em></p>
 }
 else
 {
     <div>
-        <div style="display:flex; justify-content: center; padding: 10px 0 10px 0">
+        <div style="display:flex; justify-content: center; padding: 20px 0 20px 0">
             <h1 style="font-family: Copperplate Gothic Light, Helvetica">- Kategorier -</h1>
         </div>
-        <div style="height: 50px; background-color: midnightblue; box-shadow: 0 4px 8px 0px #00000088"></div>
+        <div style="height: 50px; background-color: #31588c; box-shadow: 0 4px 8px 0px #00000088"></div>
         <div style="display: grid; grid-template-columns: repeat(5, auto); grid-gap: 20px; padding: 20px 0 20px 0">
             @foreach (Category category in categories)
             {
                 <div style="margin: auto">
                     <div style="width: 150px; height: 150px">
-                        <img src=@category.ImageRef style="cursor: pointer; max-width: 150px; border: 5px solid white; border-radius: 50%; box-shadow: 0 3px 10px #00000088" @onclick='() => GoToProducts(category.CName)' />
+                        <img class="category-link" src=@category.ImageRef @onclick='() => GoToProducts(category.CName)' />
                     </div>
-                    <div style="display:flex; justify-content: center; font-size: 24px; font-style: italic; padding-top: 10px">
+                    <div style="display:flex; justify-content: center; color: var(--dark-text-color); font-size: 24px; font-style: italic; padding-top: 10px">
                         @category.CName
                     </div>
                 </div>

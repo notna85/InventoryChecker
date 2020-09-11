@@ -12,26 +12,31 @@
 }
 @if (productModels == null)
 {
-    <p><em>Loading...</em></p>
+    <p style="margin-left: 20px"><em>Loading...</em></p>
 }
 else
 {
     @*---Menu---*@
-    <div style="position: sticky; top: 0px; padding-top: 20px; background-color: lavender">
-        <div style="display: flex; padding: 0 20px 0 20px">
-            <div style="flex-grow: 1">
+    <div style="position: sticky; top: 0px; background-color: var(--BG-color)">
+        <div style="display:grid; grid-template-columns: 200px 240px calc(100% - 880px) 240px 200px; padding: 20px">
+            <div>
                 <button class="btn-ui btn-blue" @onclick="GoToMain">Kategorier</button>
+            </div>
+            <div>
+            </div>
+            <div style="display:flex; justify-content: center">
+                <h1 style="font-family: Copperplate Gothic Light, Helvetica; color: var(--dark-text-color)">- @CurrentCategory -</h1>
             </div>
             <div style="align-content: center">
                 @if (LoggedIn == true)
                 {
-                    <button class="btn-ui btn-blue" style="margin: 0 20px 0 20px" @onclick="PrepareAddNewDialog">Tilføj produkt</button>
+                    <button class="btn-ui btn-lightblue" @onclick="PrepareAddNewDialog">Tilføj produkt</button>
                 }
             </div>
             <div style="align-content: center">
                 @if (LoggedIn == false)
                 {
-                    <button class="btn-ui btn-blue" @onclick='() => ShowLogOnDialog = true'>Log på</button>
+                    <button class="btn-ui btn-blue" @onclick='() => ShowLoginDialog = true'>Log på</button>
                 }
                 else
                 {
@@ -39,10 +44,7 @@ else
                 }
             </div>
         </div>
-        <div style="display:flex; justify-content: center; padding: 10px 0 10px 0">
-            <h1 style="font-family: Copperplate Gothic Light, Helvetica">- @CurrentCategory -</h1>
-        </div>
-        <div style="display: grid; grid-template-columns: calc((100% - ((@ColumnCount * 200px) + 200px))/2) 200px repeat(@ColumnCount, 200px) calc((100% - ((@ColumnCount * 200px) + 200px))/2); height: 50px; color: white; background-color: midnightblue; box-shadow: 0 4px 8px 0px #00000088">
+        <div style="display: grid; grid-template-columns: calc((100% - ((@ColumnCount * 200px) + 200px))/2) 200px repeat(@ColumnCount, 200px) calc((100% - ((@ColumnCount * 200px) + 200px))/2); height: 50px; color: var(--light-text-color); background-color: #31588c; box-shadow: 0 4px 8px 0px #00000088">
             <div></div>
             <div></div>
             @foreach (StorageType storage in storagesByCategory)
@@ -59,7 +61,7 @@ else
             <div style="display: grid; grid-template-columns: calc((100% - ((@ColumnCount * 200px) + 200px))/2) auto calc((100% - ((@ColumnCount * 200px) + 200px))/2); margin-bottom: 10px">
                 <div></div>
                 <div class="datarow" style="display: grid; grid-template-columns: 200px repeat(@ColumnCount, 200px); padding: 20px 0 20px 0; border-radius: 45px">
-                    <div style="line-height: 50px; text-align: center; font-size: 24px; font-style: italic">
+                    <div style="line-height: 50px; color: var(--dark-text-color); text-align: center; font-size: 24px; font-style: italic">
                         @pm.Product.PName
                     </div>
                     @foreach (StorageType storage in storagesByCategory)
@@ -82,11 +84,11 @@ else
                         {
                             int i = currentIndex;
                             <div style="margin:auto">
-                                <div style="display: grid; grid-template-columns: 50px 50px 50px">
+                                <div style="display: grid; grid-template-columns: 50px 50px 50px; background-color: #fff; border-radius: 25px">
                                     @if (pm.ProductAmountList[i].Amount > 0)
                                     {
-                                        <div>
-                                            <button class="btn-round btn-green" @onclick='() => UpdateAmount(pm.ProductAmountList[i], -1)'>-</button>
+                                        <div style="padding: 10px 0 10px 10px">
+                                            <button class="btn-round btn-yellow" style="border-radius: 100% 0 0 100%" @onclick='() => UpdateAmount(pm.ProductAmountList[i], -1)'>-</button>
                                         </div>
                                     }
                                     else
@@ -98,8 +100,8 @@ else
                                     </div>
                                     @if (pm.ProductAmountList[i].Amount < 999)
                                     {
-                                        <div>
-                                            <button class="btn-round btn-green" @onclick='() => UpdateAmount(pm.ProductAmountList[i], 1)'>+</button>
+                                        <div style="padding: 10px 10px 10px 0">
+                                            <button class="btn-round btn-yellow" style="border-radius: 0 100% 100% 0" @onclick='() => UpdateAmount(pm.ProductAmountList[i], 1)'>+</button>
                                         </div>
                                     }
                                     else
@@ -120,10 +122,10 @@ else
                     {
                         <div style="display: grid; grid-template-columns: auto auto">
                             <div>
-                                <button class="btn-round btn-blue" style="width: 70px; border-radius: 25px; margin-right: 20px; font-size: 30px" @onclick='() => PrepareEditDialog(pm)'>&#9998</button>
+                                <button class="btn-ui btn-lightblue" style="min-width:70px; margin-right: 20px; font-size: 30px" @onclick='() => PrepareEditDialog(pm)'>&#9998</button>
                             </div>
                             <div>
-                                <button class="btn-round btn-red" style="width: 70px; border-radius: 25px; margin-left: 20px; font-size: 30px" @onclick='() => PrepareDeleteConfirmDialog(pm.Product.PName)'>&#128465</button>
+                                <button class="btn-ui btn-red" style="min-width: 70px; margin-left: 20px; font-size: 30px" @onclick='() => PrepareDeleteConfirmDialog(pm.Product)'>&#128465</button>
                             </div>
                         </div>
                     }
@@ -205,6 +207,8 @@ else
                 <div class="modal-body" style="padding: 40px 40px 40px 40px">
                     <div style="font-size: 20px; font-style: italic">
                         @ConfirmDialogText
+                        <br />
+                        Er du sikker?
                     </div>
                     <br />
                     <div style="display: flex; justify-content: center">
@@ -225,18 +229,26 @@ else
     <div class="modal-backdrop fade show" style="visibility: hidden !important"></div>
 }
 
-@if (ShowLogOnDialog == true)
+@if (ShowLoginDialog == true)
 {
     <div class="modal" tabindex="-1" style="display: block" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content dialog-style">
                 <div class="modal-body" style="padding: 40px 40px 40px 40px">
                     <label style="font-size: 20px; font-style: italic">Indtast adgangskode</label>
-                    <input class="form-control" type="text" style="font-size: 20px; box-shadow: inset 2px 2px 5px #0005" @bind="password" />
+                    <input class="form-control" type="password" style="font-size: 20px; box-shadow: inset 2px 2px 5px #0005" @bind="password" />
+                    @if (passwordError == true)
+                    {
+                        <div style="height: 40px; color: red; font-size: 20px; font-style: italic">*Forkert adgangskode!</div>
+                    }
+                    else
+                    {
+                        <div style="height: 40px"></div>
+                    }
                     <br />
                     <div style="display: flex; justify-content: center">
                         <button class="btn-ui btn-blue" style="margin-right: 10px" @onclick="ValidateLogin">Log på</button>
-                        <button class="btn-ui btn-blue" style="margin-left: 10px" @onclick='() => ShowLogOnDialog = false'>Luk</button>
+                        <button class="btn-ui btn-blue" style="margin-left: 10px" @onclick="CloseLoginDialog">Luk</button>
                     </div>
                 </div>
             </div>
@@ -257,9 +269,8 @@ else
     private string prodNameOld = "";
     public string CurrentCategory { get; set; }
     public string ProductDialogTitle { get; set; }
-    public string ConfirmDialogTitle { get; set; }
-    public RenderFragment ConfirmDialogText { get; set; }
-    public string ChosenProduct { get; set; }
+    public string ConfirmDialogText { get; set; }
+    public Product ChosenProduct { get; set; }
     private string password = "";
 
     private int currentIndex;
@@ -271,24 +282,36 @@ else
     public bool IsEdit { get; set; }
     public bool ShowProductDialog { get; set; }
     public bool ShowConfirmDialog { get; set; }
-    public bool ShowLogOnDialog { get; set; }
+    public bool ShowLoginDialog { get; set; }
     private bool nameEmpty;
     private bool nameExist;
     private bool checkboxEmpty;
+    private bool passwordError;
 
     protected override async Task OnInitializedAsync()
     {
         CurrentCategory = ProductService.CurrentCategory;
         if (CurrentCategory.Length > 0)
         {
-            productModels = await ProductDataService.GetProductsByCategory();
-            storagesByCategory = await ProductDataService.GetStorageTypesByCategory(CurrentCategory);
             storagesAll = await ProductDataService.GetStorageTypes();
-            ColumnCount = storagesByCategory.Count();
+            LoadProducts();
         }
     }
 
-    private void BoxChecked(string storage, object checkedValue)
+    private async Task<List<ProductModel>> CreateProductModelList(string category)
+    {
+        List<ProductModel> pmList = new List<ProductModel>();
+        List<Product> pList = await ProductDataService.GetProductsByCategory(category);
+        foreach (Product p in pList)
+        {
+            List<ProductAmount> paList = await ProductDataService.GetProductAmountsByProduct(p);
+            ProductModel pm = new ProductModel(p, paList);
+            pmList.Add(pm);
+        }
+        return pmList;
+    }
+
+    private void BoxChecked(string storage, object checkedValue) //Adds to one list and removes from another depending on whether the checkbox is checked or not
     {
         if ((bool)checkedValue)
         {
@@ -315,11 +338,27 @@ else
     }
     private void ValidateLogin()
     {
-        LoggedIn = true;
-        ShowLogOnDialog = false;
+        Hash256 hash = new Hash256();
+        string hashedPassword = hash.GenerateHash(password);
+
+        if (ProductDataService.CheckLogin(hashedPassword) == true)
+        {
+            LoggedIn = true;
+            CloseLoginDialog();
+            ToastService.ShowSuccess("Login succesfuld!");
+        }
+        else
+        {
+            passwordError = true;
+        }
     }
-    //Method checks if submitted data meets the requirements and returns a boolean value depending on the results
-    private bool IsValidSubmit()
+    private void CloseLoginDialog()
+    {
+        password = "";
+        passwordError = false;
+        ShowLoginDialog = false;
+    }
+    private bool IsValidSubmit() //Method checks if submitted data meets the requirements and returns a boolean value depending on the results
     {
         if (prodName.ToUpper() != prodNameOld.ToUpper())
         {
@@ -351,15 +390,13 @@ else
         if (IsValidSubmit() == true)
         {
             List<ProductAmount> paList = new List<ProductAmount>();
-
+            Product product = new Product(prodName, CurrentCategory);
             foreach (string storage in checkedStorages)
             {
                 paList.Add(new ProductAmount(prodName, storage, 0));
             }
-            ProductDataService.AddProduct(new ProductModel(new Product(prodName, CurrentCategory), paList));
-            CloseProductDialog();
-            ToastService.ShowSuccess("Produkt tilføjet!");
-            ReloadProducts();
+            ProductDataService.AddProduct(product, paList);
+            FinishUp("Produkt tilføjet!");
         }
     }
     private void EditProduct()
@@ -367,10 +404,7 @@ else
         if (IsValidSubmit() == true)
         {
             ProductDataService.UpdateProduct(prodNameOld, prodName, checkedStorages, uncheckedStorages);
-            CloseConfirmDialog();
-            CloseProductDialog();
-            ToastService.ShowSuccess("Produkt opdateret!");
-            ReloadProducts();
+            FinishUp("Produkt opdateret!");
         }
     }
     private void PrepareAddNewDialog()
@@ -398,7 +432,7 @@ else
         ProductDialogTitle = "Opdater produkt";
         ShowProductDialog = true;
     }
-    private void CloseProductDialog()
+    private void CloseProductDialog() //Resets a bunch of variables to make them ready to be used again
     {
         nameEmpty = false;
         nameExist = false;
@@ -412,7 +446,7 @@ else
     private void UpdateAmount(ProductAmount productAmount, int amount)
     {
         ProductDataService.UpdateProductAmount(productAmount, amount);
-        ReloadProducts();
+        LoadProducts();
     }
     private void CheckIfShouldConfirm()
     {
@@ -427,49 +461,56 @@ else
     private void PrepareEditConfirmDialog()
     {
         IsEdit = true;
-        ConfirmDialogTitle = "Opdater produkt";
-        ConfirmDialogText =@<p>En eller flere opbevaringstyper er blevet fravalgt. Eksisterende data vil blive slettet. <br />Er du sikker?</p>;
-ShowConfirmDialog = true;
-}
-private void PrepareDeleteConfirmDialog(string productName)
-{
-ChosenProduct = productName;
-IsEdit = false;
-ConfirmDialogTitle = "Slet produkt";
-ConfirmDialogText = @<p>All data for det her produktet vil blive slettet. <br />Er du sikker?</p>;
-ShowConfirmDialog = true;
-}
-private void CloseConfirmDialog()
-{
-ChosenProduct = "";
-ShowConfirmDialog = false;
-}
-private string SetTextColor(int amount)
-{
-string textColor;
-if (amount > 0 && amount < 999)
-textColor = "black";
-else
-textColor = "red";
+        ConfirmDialogText = "En eller flere opbevaringstyper er blevet fravalgt. Eksisterende data vil blive slettet.";
+        ShowConfirmDialog = true;
+    }
+    private void PrepareDeleteConfirmDialog(Product product)
+    {
+        ChosenProduct = product;
+        IsEdit = false;
+        ConfirmDialogText = "All data for det her produktet vil blive slettet.";
+        ShowConfirmDialog = true;
+    }
+    private void CloseConfirmDialog()
+    {
+        ChosenProduct = new Product();
+        ShowConfirmDialog = false;
+    }
+    private string SetTextColor(int amount) //Sets the textcolor to red if a product's amount reaches 0 or maximum
+    {
+        string textColor;
+        if (amount > 0 && amount < 999)
+            textColor = "black";
+        else
+            textColor = "red";
 
-return textColor;
-}
-private void RemoveProduct(string productName)
-{
-ProductDataService.RemoveProduct(productName);
-CloseConfirmDialog();
-ToastService.ShowSuccess("Produkt slettet!");
-ReloadProducts();
-}
-private void GoToMain()
-{
-NavMan.NavigateTo("/");
-}
-private async void ReloadProducts() //Fetches the content from the database and refeshes the UI if content is different from last fetch
-{
-productModels = await ProductDataService.GetProductsByCategory();
-storagesByCategory = await ProductDataService.GetStorageTypesByCategory(CurrentCategory);
-ColumnCount = storagesByCategory.Count();
-StateHasChanged();
-}
+        return textColor;
+    }
+    private void RemoveProduct(Product product)
+    {
+        ProductDataService.RemoveProduct(product);
+        FinishUp("Produkt slettet!");
+    }
+    private void FinishUp(string toastMessage) //Calls methods to finish up a successful operation 
+    {
+        if (ShowConfirmDialog == true)
+            CloseConfirmDialog();
+
+        if (ShowProductDialog == true)
+            CloseProductDialog();
+
+        ToastService.ShowSuccess(toastMessage);
+        LoadProducts();
+    }
+    private void GoToMain() //Navigates to the index page
+    {
+        NavMan.NavigateTo("/");
+    }
+    private async void LoadProducts() //Fetches the content from the database and refeshes the UI if content is different from last fetch
+    {
+        productModels = await CreateProductModelList(CurrentCategory);
+        storagesByCategory = await ProductDataService.GetStorageTypesByCategory(CurrentCategory);
+        ColumnCount = storagesByCategory.Count();
+        StateHasChanged();
+    }
 }
