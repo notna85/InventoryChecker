@@ -32,8 +32,10 @@ namespace InventoryChecker
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddDbContext<FreezerContext>(option => option.UseSqlServer(Configuration.GetConnectionString("FreezerDB")));
-            services.AddTransient<ProductService>();
+            services.AddScoped<ProductService>();
             services.AddBlazoredToast();
+            //services.AddTransient<TimerService>();
+            services.AddProtectedBrowserStorage();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

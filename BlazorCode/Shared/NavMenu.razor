@@ -28,10 +28,22 @@
             </NavLink>
         </li>
     </ul>
+    <div>
+        @if (LoggedIn == false)
+        {
+            <button @onclick='() => LoggedIn = true'>LogIn</button>
+        }
+        else
+        {
+            <button @onclick='() => LoggedIn = false'>LogOff</button>
+        }
+    </div>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
+    public bool LoggedIn { get; set; } = false;
+
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 

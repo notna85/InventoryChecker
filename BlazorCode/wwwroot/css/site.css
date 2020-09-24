@@ -11,6 +11,7 @@ html, body {
     background-color: var(--BG-color);
     height: 100%;
     width: 100%;
+    touch-action: manipulation;
 }
 
 a, .btn-link {
@@ -26,21 +27,23 @@ a, .btn-link {
 .category-link {
     cursor: pointer;
     max-width: 150px;
-    border: 5px solid white;
+    border: 2px solid white;
     border-radius: 50%;
-    box-shadow: 0 3px 10px #00000088;
+    box-shadow: 0 3px 10px #667799;
 }
 .category-link:active {
     transform: scale(0.9);
 }
 .btn-ui {
     height: 50px;
-    min-width: 200px;
+    width: 200px;
     font-size: 24px;
     color: var(--light-text-color);
     border: none;
     border-radius: 25px;
-    box-shadow: 0 3px 4px #00000088, inset 0 2px 3px #fffd;
+    padding: 0;
+    margin: 0;
+    box-shadow: 0 3px 4px #667799, inset 0 2px 3px #fffd;
 }
 .btn-ui:focus {
     outline: none;
@@ -51,11 +54,11 @@ a, .btn-link {
     border: none;
     width: 40px;
     height: 30px;
-    font-size: 35px;
+    font-size: 24px;
     line-height: 30px;
     padding: 0;
     margin: 0;
-    box-shadow: 0 2px 3px #00000088, inset 0 2px 3px #fffd;
+    box-shadow: 0 2px 3px #8899aa, inset 0 2px 3px #fffd;
 }
 .btn-round:focus {
     outline: none;
@@ -70,7 +73,7 @@ a, .btn-link {
 }
 .btn-yellow:active {
     color: #ca3;
-    background-color: #eb3;
+    background: #eb3;
     transform: scale(0.9);
 }
 .btn-blue {
@@ -84,7 +87,6 @@ a, .btn-link {
     color: #fff5;
     background: #27a;
     transform: scale(0.9);
-/*    #2377bc*/
 }
 .btn-lightblue {
     background-color: #78b8e0;
@@ -95,7 +97,7 @@ a, .btn-link {
 }
 .btn-lightblue:active {
     color: #fff5;
-    background-color: #49c;
+    background: #49c;
     transform: scale(0.9);
 }
 .btn-red {
@@ -110,13 +112,18 @@ a, .btn-link {
     background: #a26;
     transform: scale(0.9);
 }
+.btn-faded {
+    color: #5555;
+    background-color: transparent;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#5552), to(transparent));
+    background-image: -webkit-linear-gradient(top, #5552, transparent);
+    background-image: -moz-linear-gradient(top, #5552, transparent);
+    background-image: -o-linear-gradient(top, #5552, transparent);
+    box-shadow: 0 2px 3px #0003, inset 0 2px 3px #fffd
+}
 .datarow {
     background-color: #eef7fc;
-    /*    background-image: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#e7e7e7));
-    background-image: -webkit-linear-gradient(top, #fff, #e7e7e7);
-    background-image: -moz-linear-gradient(top, #fff, #e7e7e7);
-    background-image: -o-linear-gradient(top, #fff, #e7e7e7);*/
-    box-shadow: 0 3px 8px #00000055;
+    box-shadow: 0 3px 8px #0002;
 }
 .dialog-style {
     color: var(--dark-text-color);
@@ -153,12 +160,13 @@ a, .btn-link {
 }
 .checkbox-custom:active {
     background: #e7e7e7;
+    transform: scale(0.9);
 }
 .checkbox-container input:checked ~ .checkbox-custom:after {
     content: '\2714';
 	font-size: 40px;
 	position: absolute;
-	color: #0d0;
+	color: #0d0f;
 }
 
 app {

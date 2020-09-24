@@ -20,6 +20,20 @@ insert into Category (CName, ImageRef) values ('Grønt', '/Images/Greens.png');
 --unhashed password is "test"
 insert into Passwords (Pass, Set_On_Valid) values ('9F86D081884C7D659A2FEAA0C55AD015A3BF4F1B2B0B822CD15D6C15B0F00A08', 1);
 
+insert into Product (PName, Category) values
+('atest2', 'Grønt')
+insert into ProductAmount (product, StorageType, Amount) values 
+('atest2', 'æsker', 6)
+
+update Product set Pname = 'atest3' where Pname = 'atest2'
+delete from Product where PName = 'atest3'
+delete from Productamount where product = 'atest2' and StorageType = 'æsker'
+
+exec Update_Amount 1,'atest2','kasser'
+exec Update_Amount -1,'b','stk'
+exec Update_Amount -1,'c','kasser'
+
+select * from ProductAmount
 go
 
 create procedure Update_Product @oldName varchar(50), @newName varchar(50)

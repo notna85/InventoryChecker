@@ -2,34 +2,36 @@
 
 @using InventoryChecker.Data
 @using InventoryChecker.Data.Entities
+@using Microsoft.AspNetCore.ProtectedBrowserStorage
 @inject ProductService ProductDataService
 @inject NavigationManager NavMan
+@inject ProtectedSessionStorage ProtectedSession
 
 @if (categories == null)
 {
-    <p style="margin-left: 20px"><em>Loading...</em></p>
+<p style="margin-left: 20px"><em>Loading...</em></p>
 }
 else
 {
-    <div>
-        <div style="display:flex; justify-content: center; padding: 20px 0 20px 0">
-            <h1 style="font-family: Copperplate Gothic Light, Helvetica">- Kategorier -</h1>
-        </div>
-        <div style="height: 50px; background-color: #31588c; box-shadow: 0 4px 8px 0px #00000088"></div>
-        <div style="display: grid; grid-template-columns: repeat(5, auto); grid-gap: 20px; padding: 20px 0 20px 0">
-            @foreach (Category category in categories)
-            {
-                <div style="margin: auto">
-                    <div style="width: 150px; height: 150px">
-                        <img class="category-link" src=@category.ImageRef @onclick='() => GoToProducts(category.CName)' />
-                    </div>
-                    <div style="display:flex; justify-content: center; color: var(--dark-text-color); font-size: 24px; font-style: italic; padding-top: 10px">
-                        @category.CName
-                    </div>
-                </div>
-            }
-        </div>
+<div>
+    <div style="display:flex; justify-content: center; padding: 20px 0 20px 0">
+        <h1 style="font-family: Copperplate Gothic Light, Helvetica">- Kategorier -</h1>
     </div>
+    <div style="height: 50px; background-color: #31588c; box-shadow: 0 4px 8px 0px #556688"></div>
+    <div style="display: grid; grid-template-columns: repeat(5, auto); grid-gap: 20px; padding: 20px 0 20px 0">
+        @foreach (Category category in categories)
+            {
+        <div style="margin: auto">
+            <div style="width: 150px; height: 150px">
+                <img class="category-link" src=@category.ImageRef @onclick='() => GoToProducts(category.CName)' />
+            </div>
+            <div style="display:flex; justify-content: center; color: var(--dark-text-color); font-size: 24px; font-style: italic; padding-top: 10px">
+                @category.CName
+            </div>
+        </div>
+            }
+    </div>
+</div>
 }
 
 @code
@@ -38,12 +40,14 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        ProductService.CurrentCategory = "";
+        //ProductService.ChosenCategory = "";
+        await ProtectedSession.SetAsync("category", "");
         categories = await ProductDataService.GetCategories();
     }
-    private void GoToProducts(string category)
+    private async Task GoToProducts(string category)
     {
-        ProductService.CurrentCategory = category;
+        //ProductService.ChosenCategory = category;
+        await ProtectedSession.SetAsync("category", category);
         NavMan.NavigateTo("productdata");
     }
 }

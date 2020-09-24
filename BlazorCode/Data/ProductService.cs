@@ -15,7 +15,7 @@ namespace InventoryChecker.Data
     public class ProductService
     {
         FreezerContext dbContext;
-        public static string CurrentCategory { get; set; } //static variable used to keep track of what category you're working with
+        //public static string ChosenCategory { get; set; } = "";
 
         public ProductService(FreezerContext context) //Constructor sets the value of the database context object
         {
@@ -57,7 +57,6 @@ namespace InventoryChecker.Data
         public void UpdateProductAmount(ProductAmount productAmount, int amount)
         {
             dbContext.Database.ExecuteSqlRaw("Update_Amount @p0, @p1, @p2", amount, productAmount.Product, productAmount.StorageType);
-            dbContext.Entry(productAmount).State = EntityState.Detached; //Removes entity from database context so that an updated one can be fetched
         }
         public void RemoveProduct(Product product)
         {
@@ -114,6 +113,11 @@ namespace InventoryChecker.Data
         }
         public async Task<List<ProductAmount>> GetProductAmountsByProduct(Product product)
         {
+            List<ProductAmount> paList = dbContext.ProductAmount.Where(pa => pa.Product == product.PName).ToList();
+            foreach(ProductAmount pa in paList)
+            {
+                dbContext.Entry(pa).State = EntityState.Detached;
+            }
             return await dbContext.ProductAmount.Where(pa => pa.Product == product.PName).ToListAsync();
         }
         public bool ProductExists(string productName)
