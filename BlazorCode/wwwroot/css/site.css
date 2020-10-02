@@ -12,6 +12,10 @@ html, body {
     height: 100%;
     width: 100%;
     touch-action: manipulation;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 a, .btn-link {
@@ -53,9 +57,9 @@ a, .btn-link {
     outline: none;
     border: none;
     width: 40px;
-    height: 30px;
+    height: 40px;
     font-size: 24px;
-    line-height: 30px;
+    line-height: 40px;
     padding: 0;
     margin: 0;
     box-shadow: 0 2px 3px #8899aa, inset 0 2px 3px #fffd;
@@ -124,6 +128,10 @@ a, .btn-link {
 .datarow {
     background-color: #eef7fc;
     box-shadow: 0 3px 8px #0002;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 .dialog-style {
     color: var(--dark-text-color);
@@ -138,10 +146,6 @@ a, .btn-link {
     font-size: 20px;
     font-style: italic;
     line-height: 40px;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
 }
 .checkbox-custom {
     position: absolute;
@@ -163,10 +167,11 @@ a, .btn-link {
     transform: scale(0.9);
 }
 .checkbox-container input:checked ~ .checkbox-custom:after {
-    content: '\2714';
-	font-size: 40px;
-	position: absolute;
-	color: #0d0f;
+    content: '\2714\fe0e';
+    font-size: 40px;
+    position: absolute;
+    left: 5px;
+    color: #0d0f;
 }
 
 app {

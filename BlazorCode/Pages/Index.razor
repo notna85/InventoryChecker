@@ -1,53 +1,56 @@
 ﻿@page "/"
 
 @using InventoryChecker.Data
-@using InventoryChecker.Data.Entities
-@using Microsoft.AspNetCore.ProtectedBrowserStorage
+@using InventoryChecker.Interfaces
+@using Microsoft.AspNetCore.ProtectedBrowserStorage @*--Used to store and retrieve certain values in the browser's memory in  order to access them across states--*@
 @inject ProductService ProductDataService
 @inject NavigationManager NavMan
 @inject ProtectedSessionStorage ProtectedSession
 
-@if (categories == null)
-{
-<p style="margin-left: 20px"><em>Loading...</em></p>
-}
-else
-{
-<div>
-    <div style="display:flex; justify-content: center; padding: 20px 0 20px 0">
-        <h1 style="font-family: Copperplate Gothic Light, Helvetica">- Kategorier -</h1>
-    </div>
-    <div style="height: 50px; background-color: #31588c; box-shadow: 0 4px 8px 0px #556688"></div>
-    <div style="display: grid; grid-template-columns: repeat(5, auto); grid-gap: 20px; padding: 20px 0 20px 0">
-        @foreach (Category category in categories)
-            {
-        <div style="margin: auto">
-            <div style="width: 150px; height: 150px">
-                <img class="category-link" src=@category.ImageRef @onclick='() => GoToProducts(category.CName)' />
-            </div>
-            <div style="display:flex; justify-content: center; color: var(--dark-text-color); font-size: 24px; font-style: italic; padding-top: 10px">
-                @category.CName
-            </div>
-        </div>
-            }
+<div style="width: 300px; margin: auto; padding-top: 20px">
+    <label style="font-size: 20px; font-style: italic">Indtast adgangskode</label>
+    <input class="form-control" type="password" maxlength="30" style="font-size: 20px; box-shadow: inset 2px 2px 5px #0005" @bind="InputtedPassword" />
+    @if (PasswordError == true)
+    {
+    <div style="height: 40px; color: red; font-size: 20px; font-style: italic">*Forkert adgangskode!</div>
+    }
+    else
+    {
+    <div style="height: 40px"></div>
+    }
+    <div style="display: flex; justify-content: center">
+        <button class="btn-ui btn-blue" style="margin-right: 10px" @onclick="ValidateLogin">Log på</button>
     </div>
 </div>
-}
 
 @code
 {
-    private List<Category> categories = new List<Category>();
+    public string InputtedPassword { get; set; } = "";
+    public bool PasswordError { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        //ProductService.ChosenCategory = "";
-        await ProtectedSession.SetAsync("category", "");
-        categories = await ProductDataService.GetCategories();
+        InputtedPassword = "";
+        base.OnInitialized();
     }
-    private async Task GoToProducts(string category)
+
+    private async Task ValidateLogin()
     {
-        //ProductService.ChosenCategory = category;
-        await ProtectedSession.SetAsync("category", category);
-        NavMan.NavigateTo("productdata");
+        IHashing hash = new Hash256();
+        string hashedPassword = hash.GenerateHash(InputtedPassword);
+
+        if (ProductDataService.CheckLogin(hashedPassword, "App") == true)
+        {
+            await SetLoginStatus(true);
+            NavMan.NavigateTo("categories");
+        }
+        else
+        {
+            PasswordError = true;
+        }
+    }
+    private async Task SetLoginStatus(bool isLoggedIn)
+    {
+        await ProtectedSession.SetAsync("Login", isLoggedIn);
     }
 }

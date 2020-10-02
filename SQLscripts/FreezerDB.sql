@@ -40,6 +40,7 @@ SType varchar(50) not null
 
 create table Passwords(
 Pass varchar(128) not null,
+PassType varchar(50) not null,
 Set_On_Valid int not null
 )
 go

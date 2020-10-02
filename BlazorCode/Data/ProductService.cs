@@ -15,15 +15,13 @@ namespace InventoryChecker.Data
     public class ProductService
     {
         FreezerContext dbContext;
-        //public static string ChosenCategory { get; set; } = "";
-
         public ProductService(FreezerContext context) //Constructor sets the value of the database context object
         {
             dbContext = context;
         }
-        public bool CheckLogin(string password)
+        public bool CheckLogin(string password, string passwordType)
         {
-            int result = dbContext.Database.ExecuteSqlRaw("Is_Login_Valid @p0", password);
+            int result = dbContext.Database.ExecuteSqlRaw("Is_Login_Valid @p0, @p1", password, passwordType);
             if (result == 1)
                 return true;
             else

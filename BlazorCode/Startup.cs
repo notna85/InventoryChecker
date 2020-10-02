@@ -34,7 +34,6 @@ namespace InventoryChecker
             services.AddDbContext<FreezerContext>(option => option.UseSqlServer(Configuration.GetConnectionString("FreezerDB")));
             services.AddScoped<ProductService>();
             services.AddBlazoredToast();
-            //services.AddTransient<TimerService>();
             services.AddProtectedBrowserStorage();
         }
 

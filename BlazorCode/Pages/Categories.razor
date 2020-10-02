@@ -1,0 +1,65 @@
+﻿@page "/categories"
+
+@using InventoryChecker.Data
+@using InventoryChecker.Data.Entities
+@using Microsoft.AspNetCore.ProtectedBrowserStorage
+@inject ProductService ProductDataService
+@inject NavigationManager NavMan
+@inject ProtectedSessionStorage ProtectedSession
+
+
+@if (CategoryList == null)
+{
+    <p style="margin-left: 20px"><em>Loading...</em></p>
+}
+else
+{
+    <div>
+        <div style="display:flex; justify-content: center; padding: 20px 0 20px 0">
+            <h1 style="font-family: Copperplate Gothic Light, Helvetica; margin-bottom: 0">- Kategorier -</h1>
+        </div>
+        <div style="height: 50px; background-color: #31588c; box-shadow: 0 4px 8px 0px #556688"></div>
+        <div style="display: grid; grid-template-columns: repeat(5, auto); grid-gap: 15px; padding: 20px 0 20px 0">
+            @foreach (Category category in CategoryList)
+            {
+                <div style="margin: auto">
+                    <div style="width: 150px; height: 150px">
+                        <img class="category-link" src=@category.ImageRef @onclick='() => GoToProducts(category.CName)' />
+                    </div>
+                    <div style="display:flex; justify-content: center; color: var(--dark-text-color); font-size: 24px; font-style: italic; padding-top: 10px">
+                        @category.CName
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code
+{
+    public List<Category> CategoryList { get; set; } = new List<Category>();
+    public bool LoginStatus { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        LoginStatus = await ProtectedSession.GetAsync<bool>("Login");
+        if (LoginStatus == false)
+        {
+            GoToMain();
+        }
+        else
+        {
+            await ProtectedSession.SetAsync("category", "");
+            CategoryList = await ProductDataService.GetCategories();
+        }
+    }
+    private async Task GoToProducts(string category)
+    {
+        await ProtectedSession.SetAsync("category", category);
+        NavMan.NavigateTo("productdata");
+    }
+    private void GoToMain()
+    {
+        NavMan.NavigateTo("/");
+    }
+}

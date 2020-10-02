@@ -1,0 +1,246 @@
+﻿@*--Child component--*@
+
+@using InventoryChecker.Data
+@using InventoryChecker.Data.Entities;
+@using Microsoft.AspNetCore.ProtectedBrowserStorage @*--Used to store and retrieve certain values in the browser's memory in  order to access them across states--*@
+@inject ProductService ProductDataService
+@inject IToastService ToastService
+@inject ProductService ProductDataService
+@inject ProtectedSessionStorage ProtectedSession
+
+
+<div class="modal" tabindex="-1" style="display: block" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content dialog-style">
+            <div class="modal-header" style="border-bottom: none">
+                <h3 class="modal-title" style="margin: auto; font-family: Copperplate Gothic Light, Helvetica">- @ProductDialogTitle.ToUpper() -</h3>
+            </div>
+            <div class="modal-body" style="padding: 20px 40px 40px 40px">
+                <label style="font-size: 20px; font-style: italic">Navn</label>
+                <input class="form-control" type="text" maxlength="30" style="font-size: 20px; box-shadow: inset 2px 2px 5px #0005" @bind="ProductName" />
+                @if (NameExist == true)
+                {
+                    <div style="height: 40px; color: red; font-size: 20px; font-style: italic">*Navnet findes allereden i databasen!</div>
+                }
+                else if (NameEmpty == true)
+                {
+                    <div style="height: 40px; color: red; font-size: 20px; font-style: italic">*Navnefeltet må ikke være tomt!</div>
+                }
+                else
+                {
+                    <div style="height: 40px"></div>
+                }
+                @foreach (StorageType storage in StoragesAll)
+                {
+                    @if (CheckedStorages.Contains(storage.Stype))
+                    {
+                        BoxChecked = true;
+                    }
+                    else
+                    {
+                        BoxChecked = false;
+                    }
+                    <label class="checkbox-container">
+                        @storage.Stype
+                        <input type="checkbox" id="@storage.Stype" checked=@BoxChecked @onchange='eventArgs => AddToCheckList(storage.Stype, eventArgs.Value)' style="display: none" /> @*--Display: none to hide the default checkbox--*@
+                        <span class="checkbox-custom"></span> @*--Renders a custom checkbox--*@
+                    </label>
+                    <br />
+                }
+                @if (CheckboxesEmpty == true)
+                {
+                    <div style="height: 40px; color: red; font-size: 20px; font-style: italic">*Vælg mindst en opbevaringstype!</div>
+                }
+                else
+                {
+                    <div style="height: 40px"></div>
+                }
+                <br />
+                <div style="display: flex; justify-content: center">
+                    @if (IsEdit == true)
+                    {
+                        <button class="btn-ui btn-blue" style="margin-right: 10px" @onclick="CheckIfShouldConfirm">Gem</button>
+                    }
+                    else
+                    {
+                        <button class="btn-ui btn-blue" style="margin-right: 10px" @onclick="AddNewProduct">Gem</button>
+                    }
+                    <button class="btn-ui btn-blue" style="margin-left: 10px" @onclick="CloseProductDialog">Luk</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+
+@if (ShowConfirmDialog == true)
+{
+    <ConfirmDialog 
+                   OnConfirmed="EditProduct"
+                   ConfirmDialogText="En eller flere opbevaringstyper er blevet fravalgt. Eksisterende data vil blive slettet."
+                   ShowConfirmDialog="SetShowConfirmDialog">
+    </ConfirmDialog>
+}
+
+@code
+{
+    [Parameter]
+    public List<StorageType> StoragesAll { get; set; }
+    [Parameter]
+    public List<string> CheckedStorages { get; set; } = new List<string>();
+    [Parameter]
+    public List<string> UncheckedStorages { get; set; } = new List<string>();
+
+    public string ProductName { get; set; } = "";
+    public string ProductNameInitial { get; set; } = "";
+
+    [Parameter]
+    public string ProductDialogTitle { get; set; }
+    [Parameter]
+    public string CurrentCategory { get; set; }
+
+    public bool NameEmpty { get; set; }
+    public bool NameExist { get; set; }
+    public bool CheckboxesEmpty { get; set; }
+    public bool BoxChecked { get; set; }
+
+    public bool ShowConfirmDialog { get; set; }
+    [Parameter]
+    public bool IsEdit { get; set; }
+    [Parameter]
+    public EventCallback<bool> ShowProductDialog { get; set; }
+    [Parameter]
+    public EventCallback CallLoadProducts { get; set; }
+    [Parameter]
+    public ProductModel ProductModel { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        CurrentCategory = await ProtectedSession.GetAsync<string>("category");
+        if (IsEdit == true)
+        {
+            ProductName = ProductModel.Product.PName;
+            ProductNameInitial = ProductName;
+            FillCheckBoxes(ProductModel);
+        }
+        base.OnInitialized();
+    }
+    private void FillCheckBoxes(ProductModel productModel)
+    {
+        foreach (ProductAmount pa in productModel.ProductAmountList)
+        {
+            CheckedStorages.Add(pa.StorageType);
+        }
+        foreach (StorageType storage in StoragesAll)
+        {
+            if (!CheckedStorages.Contains(storage.Stype))
+            {
+                UncheckedStorages.Add(storage.Stype);
+            }
+        }
+    }
+
+    private void AddToCheckList(string storage, object checkedValue) //Adds to one list and removes from another depending on whether the checkbox is checked or not
+    {
+        if ((bool)checkedValue)
+        {
+            if (!CheckedStorages.Contains(storage))
+            {
+                CheckedStorages.Add(storage);
+            }
+            if (UncheckedStorages.Contains(storage))
+            {
+                UncheckedStorages.Remove(storage);
+            }
+        }
+        else
+        {
+            if (CheckedStorages.Contains(storage))
+            {
+                CheckedStorages.Remove(storage);
+            }
+            if (!UncheckedStorages.Contains(storage))
+            {
+                UncheckedStorages.Add(storage);
+            }
+        }
+    }
+
+    private async Task CheckIfShouldConfirm()
+    {
+        if (IsValidSubmit() == true)
+        {
+            if (ProductDataService.ProductAmountExists(ProductNameInitial, UncheckedStorages) == true)
+                SetShowConfirmDialog(true);
+            else
+                await EditProduct();
+        }
+    }
+    private async Task AddNewProduct()
+    {
+        if (IsValidSubmit() == true)
+        {
+            List<ProductAmount> paList = new List<ProductAmount>();
+            Product product = new Product(ProductName, CurrentCategory);
+            foreach (string storage in CheckedStorages)
+            {
+                paList.Add(new ProductAmount(ProductName, storage, 0));
+            }
+            ProductDataService.AddProduct(product, paList);
+            await CloseProductDialog();
+            ToastService.ShowSuccess("Produkt tilføjet!");
+            await CallLoadProducts.InvokeAsync(EventCallback.Empty);
+        }
+    }
+    private async Task EditProduct()
+    {
+        ProductDataService.UpdateProduct(ProductNameInitial, ProductName, CheckedStorages, UncheckedStorages);
+        await CloseProductDialog();
+        ToastService.ShowSuccess("Produkt opdateret!");
+        await CallLoadProducts.InvokeAsync(EventCallback.Empty);
+    }
+    private void SetShowConfirmDialog(bool showDialog)
+    {
+        ShowConfirmDialog = showDialog;
+    }
+
+    private bool IsValidSubmit() //Method checks if submitted data meets the requirements and returns a boolean value depending on the results
+    {
+        if (ProductName.ToUpper() != ProductNameInitial.ToUpper())
+        {
+            if (ProductDataService.ProductExists(ProductName) == true)
+                NameExist = true;
+            else
+                NameExist = false;
+        }
+        else
+            NameExist = false;
+
+        if (ProductName.Length == 0)
+            NameEmpty = true;
+        else
+            NameEmpty = false;
+
+        if (CheckedStorages.Count == 0)
+            CheckboxesEmpty = true;
+        else
+            CheckboxesEmpty = false;
+
+        if (!NameExist && !NameEmpty && !CheckboxesEmpty)
+            return true;
+        else
+            return false;
+    }
+    private async Task CloseProductDialog() //Resets a bunch of variables to make them ready to be used again
+    {
+        NameEmpty = false;
+        NameExist = false;
+        CheckboxesEmpty = false;
+        ProductName = "";
+        ProductNameInitial = "";
+        CheckedStorages.Clear();
+        UncheckedStorages.Clear();
+        await ShowProductDialog.InvokeAsync(false);
+    }
+}

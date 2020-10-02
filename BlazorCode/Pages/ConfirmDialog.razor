@@ -1,0 +1,41 @@
+﻿@*--Child component--*@
+
+<div class="modal" tabindex="-1" style="display: block; background-color: rgba(0,0,0,0.5)" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content dialog-style">
+            <div class="modal-body" style="padding: 40px 40px 40px 40px">
+                <div style="font-size: 20px; font-style: italic">
+                    @ConfirmDialogText
+                    <br />
+                    Er du sikker?
+                </div>
+                <br />
+                <div style="display: flex; justify-content: center">
+                    <button class="btn-ui btn-red" style="margin-right: 10px" @onclick="OnConfirmedClick">Ja</button>
+                    <button class="btn-ui btn-blue" style="margin-left: 10px" @onclick="CloseConfirmDialog">Nej</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show" style="visibility: hidden !important"></div>
+
+@code
+{
+    [Parameter]
+    public string ConfirmDialogText { get; set; }
+    [Parameter]
+    public EventCallback OnConfirmed { get; set; }
+    [Parameter]
+    public EventCallback<bool> ShowConfirmDialog { get; set; }
+
+    private async Task OnConfirmedClick()
+    {
+        await CloseConfirmDialog();
+        await OnConfirmed.InvokeAsync(EventCallback.Empty);
+    }
+    private async Task CloseConfirmDialog()
+    {
+        await ShowConfirmDialog.InvokeAsync(false);
+    }
+}

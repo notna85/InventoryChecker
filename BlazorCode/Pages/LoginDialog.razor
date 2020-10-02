@@ -1,0 +1,77 @@
+﻿@*--Child component--*@
+
+@using InventoryChecker.Data
+@using InventoryChecker.Interfaces
+@using Microsoft.AspNetCore.ProtectedBrowserStorage @*--Used to store and retrieve certain values in the browser's memory in  order to access them across states--*@
+@inject ProductService ProductDataService
+@inject ProductService ProductDataService
+@inject ProtectedSessionStorage ProtectedSession
+@inject IToastService ToastService
+
+<div class="modal" tabindex="-1" style="display: block" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content dialog-style">
+            <div class="modal-body" style="padding: 40px 40px 40px 40px">
+                <label style="font-size: 20px; font-style: italic">Indtast adgangskode</label>
+                <input class="form-control" type="password" maxlength="30" style="font-size: 20px; box-shadow: inset 2px 2px 5px #0005" @bind="InputtedPassword" />
+                @if (PasswordError == true)
+                {
+                    <div style="height: 40px; color: red; font-size: 20px; font-style: italic">*Forkert adgangskode!</div>
+                }
+                else
+                {
+                    <div style="height: 40px"></div>
+                }
+                <br />
+                <div style="display: flex; justify-content: center">
+                    <button class="btn-ui btn-blue" style="margin-right: 10px" @onclick="ValidateLogin">Log på</button>
+                    <button class="btn-ui btn-blue" style="margin-left: 10px" @onclick="CloseLoginDialog">Luk</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+
+@code
+{
+    public string InputtedPassword { get; set; } = "";
+    public bool PasswordError { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> LoginStatus { get; set; }
+    [Parameter]
+    public EventCallback<bool> ShowLoginDialog { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    private async Task ValidateLogin()
+    {
+        IHashing hash = new Hash256();
+        string hashedPassword = hash.GenerateHash(InputtedPassword);
+
+        if (ProductDataService.CheckLogin(hashedPassword, "Admin") == true)
+        {
+            await SetLoginStatus(true);
+            await CloseLoginDialog();
+            ToastService.ShowSuccess("Login succesfuld!");
+        }
+        else
+        {
+            PasswordError = true;
+        }
+    }
+    private async Task SetLoginStatus(bool isLoggedIn)
+    {
+        await LoginStatus.InvokeAsync(isLoggedIn);
+    }
+    private async Task CloseLoginDialog()
+    {
+        InputtedPassword = "";
+        PasswordError = false;
+        await ShowLoginDialog.InvokeAsync(false);
+    }
+}
