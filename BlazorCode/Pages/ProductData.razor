@@ -1,13 +1,15 @@
-﻿@page "/productdata"
+﻿@*--Component that displays data of products belonging to a chosen category--*@
+
+@page "/productdata"
 
 @using InventoryChecker.Data
 @using InventoryChecker.Data.Entities
-@using Microsoft.AspNetCore.ProtectedBrowserStorage @*--Used to store and retrieve certain values in the browser's memory in  order to access them across states--*@
-@inject ProductService ProductDataService
+@using InventoryChecker.Interfaces
+@using Microsoft.AspNetCore.ProtectedBrowserStorage @**--Lets you make use of the ProtectedSessionStorage feature--*@
+@inject IProductService ProductDataService
 @inject NavigationManager NavMan
 @inject IToastService ToastService
 @inject ProtectedSessionStorage ProtectedSession
-
 
 @if (ProductModelList == null)
 {
@@ -25,17 +27,17 @@ else
             <div style="align-content: center; margin: 0 20px 0 20px">
                 @if (LoginAdminStatus == true)
                 {
-                <button class="btn-ui btn-lightblue" @onclick="PrepareAddNewDialog">Tilføj produkt</button>
+                    <button class="btn-ui btn-lightblue" @onclick="PrepareAddNewDialog">Tilføj produkt</button>
                 }
             </div>
             <div style="align-content: center">
                 @if (LoginAdminStatus == false)
                 {
-                <button class="btn-ui btn-blue" @onclick='() => SetShowLoginDialog(true)'>Log på</button>
+                    <button class="btn-ui btn-blue" @onclick='() => SetShowLoginDialog(true)'>Log på</button>
                 }
                 else
                 {
-                <button class="btn-ui btn-blue" @onclick='() => SetLoginStatus(false)'>Log af</button>
+                    <button class="btn-ui btn-blue" @onclick='() => SetLoginStatus(false)'>Log af</button>
                 }
             </div>
         </div>
@@ -150,8 +152,7 @@ else
 
 @if (ShowProductDialog == true) //Renders the ProductDialog child component
 {
-    <ProductDialog 
-                   IsEdit="IsEdit"
+    <ProductDialog IsEdit="IsEdit"
                    ProductModel="ChosenProductModel"
                    CallLoadProducts="LoadProducts"
                    ProductDialogTitle="@ProductDialogTitle"
@@ -163,8 +164,7 @@ else
 
 @if (ShowConfirmDialog == true) //Renders the ConfirmDialog child component
 {
-    <ConfirmDialog 
-                   OnConfirmed="RemoveProduct"
+    <ConfirmDialog OnConfirmed="RemoveProduct"
                    ConfirmDialogText="All data for det her produktet vil blive slettet."
                    ShowConfirmDialog="SetShowConfirmDialog">
     </ConfirmDialog>
@@ -172,8 +172,7 @@ else
 
 @if (ShowLoginDialog == true) //Renders the LoginDialog child component
 {
-    <LoginDialog 
-                 ShowLoginDialog="SetShowLoginDialog"
+    <LoginDialog ShowLoginDialog="SetShowLoginDialog"
                  LoginStatus="SetLoginStatus">
     </LoginDialog>
 }
@@ -240,7 +239,7 @@ else
 
     private async Task SetLoginStatus(bool isLoggedIn)
     {
-        LoginAdminStatus = isLoggedIn; //Saves login status in the class
+        LoginAdminStatus = isLoggedIn;
         await ProtectedSession.SetAsync("LoginAdmin", isLoggedIn); //Saves login status in the browser memory
     }
 
@@ -289,7 +288,7 @@ else
         await LoadProducts();
     }
 
-    private string SetTextColor(int amount) //Sets the textcolor to red if a product's amount reaches 0 or maximum
+    private string SetTextColor(int amount)
     {
         string textColor;
         if (amount > 0 && amount < 999)
@@ -312,12 +311,12 @@ else
     {
         NavMan.NavigateTo("/");
     }
-    private void GoToCategories() //Navigates to the index page
+    private void GoToCategories()
     {
         NavMan.NavigateTo("categories");
     }
 
-    private async Task LoadProducts() //Fetches the content from the database and refeshes the UI if content is different from last fetch
+    private async Task LoadProducts() //Fetches content from database and refeshes UI if content is different from last fetch
     {
         StoragesByCategory = await ProductDataService.GetStorageTypesByCategory(CurrentCategory);
         ColumnCount = StoragesByCategory.Count();

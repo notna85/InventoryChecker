@@ -3,8 +3,7 @@
 @using InventoryChecker.Data
 @using InventoryChecker.Interfaces
 @using Microsoft.AspNetCore.ProtectedBrowserStorage @*--Used to store and retrieve certain values in the browser's memory in  order to access them across states--*@
-@inject ProductService ProductDataService
-@inject ProductService ProductDataService
+@inject ILogin LoginService
 @inject ProtectedSessionStorage ProtectedSession
 @inject IToastService ToastService
 
@@ -53,7 +52,7 @@
         IHashing hash = new Hash256();
         string hashedPassword = hash.GenerateHash(InputtedPassword);
 
-        if (ProductDataService.CheckLogin(hashedPassword, "Admin") == true)
+        if (LoginService.CheckLogin(hashedPassword, "Admin") == true)
         {
             await SetLoginStatus(true);
             await CloseLoginDialog();

@@ -3,7 +3,7 @@
 @using InventoryChecker.Data
 @using InventoryChecker.Interfaces
 @using Microsoft.AspNetCore.ProtectedBrowserStorage @*--Used to store and retrieve certain values in the browser's memory in  order to access them across states--*@
-@inject ProductService ProductDataService
+@inject ILogin LoginService
 @inject NavigationManager NavMan
 @inject ProtectedSessionStorage ProtectedSession
 
@@ -12,11 +12,11 @@
     <input class="form-control" type="password" maxlength="30" style="font-size: 20px; box-shadow: inset 2px 2px 5px #0005" @bind="InputtedPassword" />
     @if (PasswordError == true)
     {
-    <div style="height: 40px; color: red; font-size: 20px; font-style: italic">*Forkert adgangskode!</div>
+        <div style="height: 40px; color: red; font-size: 20px; font-style: italic">*Forkert adgangskode!</div>
     }
     else
     {
-    <div style="height: 40px"></div>
+        <div style="height: 40px"></div>
     }
     <div style="display: flex; justify-content: center">
         <button class="btn-ui btn-blue" style="margin-right: 10px" @onclick="ValidateLogin">Log på</button>
@@ -39,7 +39,7 @@
         IHashing hash = new Hash256();
         string hashedPassword = hash.GenerateHash(InputtedPassword);
 
-        if (ProductDataService.CheckLogin(hashedPassword, "App") == true)
+        if (LoginService.CheckLogin(hashedPassword, "App") == true)
         {
             await SetLoginStatus(true);
             NavMan.NavigateTo("categories");

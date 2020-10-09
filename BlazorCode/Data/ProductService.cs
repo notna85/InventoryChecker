@@ -1,6 +1,4 @@
-﻿using InventoryChecker.DAL;
-using InventoryChecker.Data.Entities;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
+﻿using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -9,24 +7,21 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using InventoryChecker.DAL;
+using InventoryChecker.Data.Entities;
+using InventoryChecker.Interfaces;
 
 namespace InventoryChecker.Data
 {
-    public class ProductService
+    //Service class that handles database related operations
+    public class ProductService : IProductService
     {
         FreezerContext dbContext;
-        public ProductService(FreezerContext context) //Constructor sets the value of the database context object
+        public ProductService(FreezerContext context)
         {
             dbContext = context;
         }
-        public bool CheckLogin(string password, string passwordType)
-        {
-            int result = dbContext.Database.ExecuteSqlRaw("Is_Login_Valid @p0, @p1", password, passwordType);
-            if (result == 1)
-                return true;
-            else
-                return false;
-        }
+
         public void AddProduct(Product product, List<ProductAmount> paList)
         {
             dbContext.Product.Add(product);

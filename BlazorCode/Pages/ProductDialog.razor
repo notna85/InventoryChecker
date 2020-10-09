@@ -1,11 +1,11 @@
-﻿@*--Child component--*@
+﻿@*--Child component used when adding or editing a product--*@
 
 @using InventoryChecker.Data
 @using InventoryChecker.Data.Entities;
+@using InventoryChecker.Interfaces;
 @using Microsoft.AspNetCore.ProtectedBrowserStorage @*--Used to store and retrieve certain values in the browser's memory in  order to access them across states--*@
-@inject ProductService ProductDataService
+@inject IProductService ProductDataService
 @inject IToastService ToastService
-@inject ProductService ProductDataService
 @inject ProtectedSessionStorage ProtectedSession
 
 
@@ -73,7 +73,7 @@
 </div>
 <div class="modal-backdrop fade show"></div>
 
-@if (ShowConfirmDialog == true)
+@if (ShowConfirmDialog == true) //Renders the ConfirmDialog child component
 {
     <ConfirmDialog 
                    OnConfirmed="EditProduct"
@@ -118,15 +118,16 @@
     protected override async Task OnInitializedAsync()
     {
         CurrentCategory = await ProtectedSession.GetAsync<string>("category");
-        if (IsEdit == true)
+        if (IsEdit == true) //If editing a product, sets the relevant variables using that product's data
         {
             ProductName = ProductModel.Product.PName;
-            ProductNameInitial = ProductName;
-            FillCheckBoxes(ProductModel);
+            ProductNameInitial = ProductName; //Stores the ProductName variable in another variable to keep track of what its starting value was
+            PopulateCheckLists(ProductModel);
         }
         base.OnInitialized();
     }
-    private void FillCheckBoxes(ProductModel productModel)
+
+    private void PopulateCheckLists(ProductModel productModel)
     {
         foreach (ProductAmount pa in productModel.ProductAmountList)
         {
@@ -167,7 +168,7 @@
         }
     }
 
-    private async Task CheckIfShouldConfirm()
+    private async Task CheckIfShouldConfirm() 
     {
         if (IsValidSubmit() == true)
         {

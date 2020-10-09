@@ -1,9 +1,11 @@
-﻿@page "/categories"
+﻿@*--Component that displays images of categories that link to products belonging to that category--*@
 
-@using InventoryChecker.Data
+@page "/categories"
+
 @using InventoryChecker.Data.Entities
+@using InventoryChecker.Interfaces;
 @using Microsoft.AspNetCore.ProtectedBrowserStorage
-@inject ProductService ProductDataService
+@inject IProductService ProductDataService
 @inject NavigationManager NavMan
 @inject ProtectedSessionStorage ProtectedSession
 
@@ -37,7 +39,7 @@ else
 
 @code
 {
-    public List<Category> CategoryList { get; set; } = new List<Category>();
+    public List<Category> CategoryList { get; set; }
     public bool LoginStatus { get; set; }
 
     protected override async Task OnInitializedAsync()

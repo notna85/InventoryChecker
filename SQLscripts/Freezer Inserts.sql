@@ -5,6 +5,7 @@ insert into StorageType (SType) values ('Kasser');
 insert into StorageType (SType) values ('Pladder');
 insert into StorageType (SType) values ('Stk');
 insert into StorageType (SType) values ('Æsker');
+insert into StorageType (SType) values ('Poser');
 
 insert into Category (CName, ImageRef) values ('Frugt', '/Images/Fruit.png');
 insert into Category (CName, ImageRef) values ('Kager', '/Images/Cake.png');
@@ -17,9 +18,8 @@ insert into Category (CName, ImageRef) values ('Mel', '/Images/Flour.png');
 insert into Category (CName, ImageRef) values ('Div/Fast food', '/Images/Misc.png');
 insert into Category (CName, ImageRef) values ('Grønt', '/Images/Greens.png');
 
---unhashed password is "login"
 insert into Passwords (Pass, PassType, Set_On_Valid) values ('428821350E9691491F616B754CD8315FB86D797AB35D843479E732EF90665324', 'App', 1);
---unhashed password is "admin"
+
 insert into Passwords (Pass, PassType, Set_On_Valid) values ('8C6976E5B5410415BDE908BD4DEE15DFB167A9C873FC4BB8A81F6F2AB448A918', 'Admin', 1);
 go
 
