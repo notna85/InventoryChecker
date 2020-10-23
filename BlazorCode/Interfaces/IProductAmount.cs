@@ -7,7 +7,6 @@ namespace InventoryChecker.Interfaces
 {
     interface IProductAmount<T, U>
     {
-        Task<U> GetProductAmount(string oldName, string storage);
         Task<List<U>> GetProductAmountsByProduct(T product);
         void UpdateProductAmount(U productAmount, int amount);
         void PrepareAddProductAmount(string productName, List<string> checkedStorageTypes);

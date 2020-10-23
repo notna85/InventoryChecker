@@ -8,7 +8,7 @@ using System.Text;
 
 namespace InventoryChecker.Data
 {
-    public class Hash256 : IHashing
+    public class HashingSHA256 : IHashing
     {
         public string GenerateHash(string input)
         {

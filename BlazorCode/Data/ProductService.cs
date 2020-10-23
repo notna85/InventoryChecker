@@ -100,10 +100,6 @@ namespace InventoryChecker.Data
         {
             return await dbContext.StorageType.FromSqlRaw("Get_Storages_By_Category @p0", category).ToListAsync();
         }
-        public async Task<ProductAmount> GetProductAmount(string oldName, string storage)
-        {
-            return await dbContext.ProductAmount.FindAsync(oldName, storage);
-        }
         public async Task<List<ProductAmount>> GetProductAmountsByProduct(Product product)
         {
             List<ProductAmount> paList = dbContext.ProductAmount.Where(pa => pa.Product == product.PName).ToList();

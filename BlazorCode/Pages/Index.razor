@@ -25,7 +25,7 @@
 
 @code
 {
-    public string InputtedPassword { get; set; } = "";
+    public string InputtedPassword { get; set; } = ""; //Current password is "bager10". Passwords are stored in the database and any changes needs to be made there.
     public bool PasswordError { get; set; }
 
     protected override void OnInitialized()
@@ -36,7 +36,7 @@
 
     private async Task ValidateLogin()
     {
-        IHashing hash = new Hash256();
+        IHashing hash = new HashingSHA256();
         string hashedPassword = hash.GenerateHash(InputtedPassword);
 
         if (LoginService.CheckLogin(hashedPassword, "App") == true)

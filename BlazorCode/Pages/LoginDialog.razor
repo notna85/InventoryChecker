@@ -1,4 +1,4 @@
-﻿@*--Child component--*@
+﻿@*--Child component used when logging in to administrator mode--*@
 
 @using InventoryChecker.Data
 @using InventoryChecker.Interfaces
@@ -34,7 +34,7 @@
 
 @code
 {
-    public string InputtedPassword { get; set; } = "";
+    public string InputtedPassword { get; set; } = ""; //Current password is "banankage". Passwords are stored in the database and any changes needs to be made there.
     public bool PasswordError { get; set; }
 
     [Parameter]
@@ -49,7 +49,7 @@
 
     private async Task ValidateLogin()
     {
-        IHashing hash = new Hash256();
+        IHashing hash = new HashingSHA256();
         string hashedPassword = hash.GenerateHash(InputtedPassword);
 
         if (LoginService.CheckLogin(hashedPassword, "Admin") == true)
