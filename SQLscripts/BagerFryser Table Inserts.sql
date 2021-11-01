@@ -19,8 +19,8 @@ insert into Category (CName, ImageRef) values ('Div/Fast food', '/Images/Misc.pn
 insert into Category (CName, ImageRef) values ('Grønt', '/Images/Greens.png');
 
 --If you need to change the Pass value, you first need to hash it using a SHA256 generator and then insert the hashed result
-insert into Passwords (Pass, PassType, Set_On_Valid) values ('849BA67C3BC15F636BB4A3652CFF045F8E0F94DDB4879CCC4CE5D0208CEEBB40', 'App', 1);
-insert into Passwords (Pass, PassType, Set_On_Valid) values ('619C35393B04DFE2D98AD721C629F2D66667E69AA44EB30F5EABD081A056CD27', 'Admin', 1);
+insert into Passwords (Pass, PassType, Set_On_Valid) values ('', 'App', 1);
+insert into Passwords (Pass, PassType, Set_On_Valid) values ('', 'Admin', 1);
 go
 
 create procedure Update_Product @oldName varchar(50), @newName varchar(50)
